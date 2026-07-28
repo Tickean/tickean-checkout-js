@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tickean Elements Playground</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      body {
+        margin: 0;
+        background: #0b1020;
+        color: #f8fafc;
+      }
+      .layout {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 320px 1fr;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel,
+      .preview {
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 16px;
+        padding: 16px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: #94a3b8;
+        margin-bottom: 6px;
+      }
+      select,
+      input,
+      button,
+      textarea {
+        width: 100%;
+        margin-bottom: 12px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: #0f172a;
+        color: #f8fafc;
+        padding: 10px 12px;
+      }
+      button {
+        cursor: pointer;
+        background: #16a34a;
+        border: none;
+        font-weight: 600;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #020617;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 12px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      .muted {
+        color: #94a3b8;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="panel">
+        <h1>Playground</h1>
+        <p class="muted">
+          Probá Appearance, locale y layout de Tickean Elements en modo demo.
+        </p>
+        <pre style="font-size:11px;margin-bottom:16px"><code>npm run build -w @tickean/checkout-elements
+cd packages/checkout-elements && npx serve . -p 3012</code></pre>
+
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="default">default</option>
+          <option value="flat" selected>flat</option>
+          <option value="night">night</option>
+          <option value="none">none</option>
+        </select>
+
+        <label for="locale">Locale</label>
+        <select id="locale">
+          <option value="es-AR" selected>es-AR</option>
+          <option value="es-CL">es-CL</option>
+          <option value="en">en</option>
+        </select>
+
+        <label for="layout">Layout</label>
+        <select id="layout">
+          <option value="stacked" selected>stacked</option>
+          <option value="split">split</option>
+        </select>
+
+        <label for="color">Primary color</label>
+        <input id="color" type="color" value="#16a34a" />
+
+        <button id="apply" type="button">Aplicar</button>
+        <button id="copy" type="button" style="background:#334155">
+          Copiar snippet
+        </button>
+
+        <label>Snippet</label>
+        <pre id="snippet"></pre>
+      </aside>
+
+      <main class="preview">
+        <tickean-checkout
+          id="checkout"
+          publishable-key="pk_test_demo"
+          event-slug="demo-festival"
+          demo="true"
+          locale="es-AR"
+          appearance='{"theme":"flat","variables":{"colorPrimary":"#16a34a"}}'
+        ></tickean-checkout>
+      </main>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@tickean/checkout-elements": "/dist/index.mjs"
+        }
+      }
+    </script>
+    <script type="module">
+      import "@tickean/checkout-elements";
+
+      const checkout = document.getElementById("checkout");
+      const snippet = document.getElementById("snippet");
+
+      function renderSnippet() {
+        const theme = document.getElementById("theme").value;
+        const locale = document.getElementById("locale").value;
+        const color = document.getElementById("color").value;
+        snippet.textContent = `<tickean-checkout
+  publishable-key="pk_test_..."
+  event-slug="tu-evento"
+  locale="${locale}"
+  appearance='{"theme":"${theme}","variables":{"colorPrimary":"${color}"}}'
+></tickean-checkout>`;
+      }
+
+      document.getElementById("apply").addEventListener("click", () => {
+        const theme = document.getElementById("theme").value;
+        const locale = document.getElementById("locale").value;
+        const color = document.getElementById("color").value;
+        checkout.setAttribute("locale", locale);
+        checkout.setAttribute(
+          "appearance",
+          JSON.stringify({
+            theme,
+            variables: { colorPrimary: color },
+          }),
+        );
+        renderSnippet();
+      });
+
+      document.getElementById("copy").addEventListener("click", async () => {
+        await navigator.clipboard.writeText(snippet.textContent || "");
+        alert("Snippet copiado");
+      });
+
+      renderSnippet();
+    </script>
+  </body>
+</html>

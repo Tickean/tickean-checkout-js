@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tickean Elements — vanilla demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        background: #f3f4f6;
+        color: #111827;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 16px 64px;
+      }
+      h1 {
+        margin: 0 0 8px;
+      }
+      .muted {
+        color: #6b7280;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "@tickean/checkout-elements": "/node_modules/@tickean/checkout-elements/dist/index.mjs",
+          "@tickean/checkout-js": "/node_modules/@tickean/checkout-js/dist/index.mjs"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main>
+      <p class="muted">Tickean Elements v0.2 · demo mode</p>
+      <h1>Vanilla checkout</h1>
+      <p class="muted">
+        Carga <code>@tickean/checkout-elements</code> con transport demo
+        in-memory (sin backend). Desde la raíz del monorepo:
+      </p>
+      <pre style="font-size:13px;background:#e5e7eb;padding:12px;border-radius:8px;overflow:auto"><code>npm install
+npm run build
+npm run start -w vanilla-elements
+# → http://localhost:3011</code></pre>
+      <p class="muted" style="font-size:13px">
+        Si actualizás el código fuente, volvé a ejecutar
+        <code>npm run build</code> antes de recargar.
+      </p>
+      <tickean-checkout
+        id="checkout"
+        publishable-key="pk_test_demo"
+        event-slug="demo-festival"
+        demo
+        locale="es-AR"
+        appearance="default"
+        payment-method="TRANSFER"
+        currency="ARS"
+      ></tickean-checkout>
+    </main>
+    <script type="module">
+      import "@tickean/checkout-elements";
+
+      const el = document.getElementById("checkout");
+      el.addEventListener("ready", () => console.log("ready"));
+      el.addEventListener("change", (e) =>
+        console.log("change", e.detail?.state?.phase),
+      );
+      el.addEventListener("complete", () => console.log("complete"));
+      el.addEventListener("error", (e) => console.error("error", e.detail));
+    </script>
+  </body>
+</html>

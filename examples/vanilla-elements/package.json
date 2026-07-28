@@ -1,0 +1,13 @@
+{
+  "name": "vanilla-elements",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Vanilla HTML demo for @tickean/checkout-elements",
+  "scripts": {
+    "start": "npx --yes serve . -p 3011"
+  },
+  "dependencies": {
+    "@tickean/checkout-elements": "0.2.0",
+    "@tickean/checkout-js": "0.2.0"
+  }
+}
