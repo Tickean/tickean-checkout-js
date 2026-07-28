@@ -1,0 +1,38 @@
+{
+  "name": "@tickean/react-checkout",
+  "version": "0.1.0",
+  "description": "React hooks for Tickean Headless Checkout",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "@tickean/checkout-js": "0.1.0"
+  },
+  "scripts": {
+    "build": "tsup src/index.tsx --format cjs,esm --dts --clean --external react",
+    "test": "vitest run",
+    "dev": "tsup src/index.tsx --format cjs,esm --dts --watch --external react"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.5"
+  }
+}

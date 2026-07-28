@@ -1,0 +1,25 @@
+{
+  "name": "nextjs-custom-checkout",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev -p 3010",
+    "build": "next build",
+    "start": "next start -p 3010",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@tickean/checkout-js": "0.1.0",
+    "@tickean/react-checkout": "0.1.0",
+    "next": "15.1.11",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5.8.2"
+  }
+}
