@@ -1,7 +1,7 @@
 {
   "name": "tickean-checkout-js",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tickean Headless Checkout SDK monorepo",
   "license": "MIT",
   "workspaces": [
@@ -9,8 +9,8 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "npm run build -w @tickean/checkout-js && npm run build -w @tickean/react-checkout",
-    "test": "npm run build -w @tickean/checkout-js && npm run test -w @tickean/checkout-js && npm run test -w @tickean/react-checkout",
+    "build": "npm run build -w @tickean/checkout-js && npm run build -w @tickean/checkout-elements && npm run build -w @tickean/react-checkout",
+    "test": "npm run build && npm run test -w @tickean/checkout-js && npm run test -w @tickean/checkout-elements && npm run test -w @tickean/react-checkout",
     "test:e2e": "npm run test:e2e -w nextjs-custom-checkout",
     "lint": "echo \"lint placeholder\"",
     "example:dev": "npm run dev -w nextjs-custom-checkout",

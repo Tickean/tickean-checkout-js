@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "API de Tickean Headless Checkout",
-    "version": "1.0.0",
-    "description": "Contrato público y versionado para checkouts personalizados. Usa claves publicables, listas de orígenes autorizados y sesiones de corta duración. Los identificadores internos de organizaciones nunca se aceptan como confiables desde el navegador.",
+    "title": "API de Tickean Headless Checkout / Elements",
+    "version": "1.1.0",
+    "description": "Contrato público versionado para Tickean Elements y checkout headless. Incluye sesiones recuperables, nextAction tipado, Idempotency-Key y request IDs.",
     "license": {
       "name": "API propietaria + SDK MIT",
       "url": "https://github.com/tickean/tickean-checkout-js"
@@ -20,12 +20,24 @@
     }
   ],
   "tags": [
-    { "name": "Sesiones" },
-    { "name": "Catálogo" },
-    { "name": "Comprador" },
-    { "name": "Compra" },
-    { "name": "Pagos" },
-    { "name": "Administración" }
+    {
+      "name": "Sesiones"
+    },
+    {
+      "name": "Catálogo"
+    },
+    {
+      "name": "Comprador"
+    },
+    {
+      "name": "Compra"
+    },
+    {
+      "name": "Pagos"
+    },
+    {
+      "name": "Administración"
+    }
   ],
   "components": {
     "securitySchemes": {
@@ -47,16 +59,26 @@
         "name": "Origin",
         "in": "header",
         "required": true,
-        "schema": { "type": "string", "example": "https://www.example.com" },
+        "schema": {
+          "type": "string",
+          "example": "https://www.example.com"
+        },
         "description": "Origen del navegador. Con claves de producción debe coincidir exactamente con un origen autorizado. Localhost solo se acepta con claves de prueba."
       }
     },
     "schemas": {
       "TickeanError": {
         "type": "object",
-        "required": ["error", "code", "message"],
+        "required": [
+          "error",
+          "code",
+          "message"
+        ],
         "properties": {
-          "error": { "type": "string", "example": "TickeanError" },
+          "error": {
+            "type": "string",
+            "example": "TickeanError"
+          },
           "code": {
             "type": "string",
             "enum": [
@@ -78,15 +100,24 @@
               "checkout_idempotency_conflict"
             ]
           },
-          "message": { "type": "string" },
-          "requestId": { "type": "string" }
+          "message": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          }
         }
       },
       "CreateSessionRequest": {
         "type": "object",
-        "required": ["eventSlug"],
+        "required": [
+          "eventSlug"
+        ],
         "properties": {
-          "eventSlug": { "type": "string", "example": "demo-festival" },
+          "eventSlug": {
+            "type": "string",
+            "example": "demo-festival"
+          },
           "returnUrl": {
             "type": "string",
             "format": "uri",
@@ -97,31 +128,56 @@
       "SessionResponse": {
         "type": "object",
         "properties": {
-          "sessionToken": { "type": "string" },
-          "expiresAt": { "type": "string", "format": "date-time" },
+          "sessionToken": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "capabilities": {
             "type": "object",
-            "additionalProperties": { "type": "boolean" }
+            "additionalProperties": {
+              "type": "boolean"
+            }
           },
-          "event": { "$ref": "#/components/schemas/PublicEvent" }
+          "event": {
+            "$ref": "#/components/schemas/PublicEvent"
+          }
         }
       },
       "PublicEvent": {
         "type": "object",
         "properties": {
-          "slug": { "type": "string" },
-          "title": { "type": "string" },
-          "description": { "type": "string" },
-          "currency": { "type": "string", "example": "ARS" },
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string",
+            "example": "ARS"
+          },
           "shows": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/PublicShow" }
+            "items": {
+              "$ref": "#/components/schemas/PublicShow"
+            }
           },
           "paymentMethods": {
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["TRANSFER", "MERCADOPAGO", "STRIPE", "FREE"]
+              "enum": [
+                "TRANSFER",
+                "MERCADOPAGO",
+                "STRIPE",
+                "FREE"
+              ]
             }
           }
         }
@@ -129,107 +185,209 @@
       "PublicShow": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "title": { "type": "string" },
-          "startsAt": { "type": "string", "format": "date-time" },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "showOptions": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/PublicShowOption" }
+            "items": {
+              "$ref": "#/components/schemas/PublicShowOption"
+            }
           }
         }
       },
       "PublicShowOption": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "price": { "type": "number" },
-          "availableStock": { "type": "integer" },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "availableStock": {
+            "type": "integer"
+          },
           "passIssuanceMode": {
             "type": "string",
-            "enum": ["PER_DAY", "SINGLE_PASS"]
+            "enum": [
+              "PER_DAY",
+              "SINGLE_PASS"
+            ]
           },
           "catalogVisibility": {
             "type": "string",
-            "enum": ["PUBLIC", "PROMO_GATED"],
+            "enum": [
+              "PUBLIC",
+              "PROMO_GATED"
+            ],
             "description": "Las opciones PROMO_GATED se omiten hasta cotizar con un código válido que las habilite"
           }
         }
       },
       "QuoteItem": {
         "type": "object",
-        "required": ["showOptionId", "amount"],
+        "required": [
+          "showOptionId",
+          "amount"
+        ],
         "properties": {
-          "showOptionId": { "type": "string" },
-          "amount": { "type": "integer", "minimum": 1 }
+          "showOptionId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1
+          }
         }
       },
       "QuoteRequest": {
         "type": "object",
-        "required": ["items"],
+        "required": [
+          "items"
+        ],
         "properties": {
           "items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/QuoteItem" }
+            "items": {
+              "$ref": "#/components/schemas/QuoteItem"
+            }
           },
-          "discountCode": { "type": "string" },
-          "showId": { "type": "string" }
+          "discountCode": {
+            "type": "string"
+          },
+          "showId": {
+            "type": "string"
+          }
         }
       },
       "QuoteResponse": {
         "type": "object",
         "properties": {
-          "currency": { "type": "string" },
-          "subtotal": { "type": "number" },
-          "discount": { "type": "number" },
-          "serviceCharge": { "type": "number" },
-          "totalPrice": { "type": "number" },
+          "currency": {
+            "type": "string"
+          },
+          "subtotal": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "serviceCharge": {
+            "type": "number"
+          },
+          "totalPrice": {
+            "type": "number"
+          },
           "unlockedShowOptionIds": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           },
-          "items": { "type": "array", "items": { "type": "object" } }
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
         }
       },
       "SendOtpRequest": {
         "type": "object",
-        "required": ["phone"],
+        "required": [
+          "phone"
+        ],
         "properties": {
-          "phone": { "type": "string", "example": "+5491112345678" },
+          "phone": {
+            "type": "string",
+            "example": "+5491112345678"
+          },
           "channel": {
             "type": "string",
-            "enum": ["WHATSAPP", "SMS"],
+            "enum": [
+              "WHATSAPP",
+              "SMS"
+            ],
             "default": "WHATSAPP"
           }
         }
       },
       "VerifyOtpRequest": {
         "type": "object",
-        "required": ["phone", "code"],
+        "required": [
+          "phone",
+          "code"
+        ],
         "properties": {
-          "phone": { "type": "string" },
-          "code": { "type": "string" },
-          "name": { "type": "string" },
-          "email": { "type": "string", "format": "email" }
+          "phone": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
         }
       },
       "CreatePurchaseRequest": {
         "type": "object",
-        "required": ["items", "paymentMethod", "currency"],
+        "required": [
+          "items",
+          "paymentMethod",
+          "currency"
+        ],
         "properties": {
           "items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/QuoteItem" }
+            "items": {
+              "$ref": "#/components/schemas/QuoteItem"
+            }
           },
           "paymentMethod": {
             "type": "string",
-            "enum": ["TRANSFER", "MERCADOPAGO", "STRIPE", "FREE"]
+            "enum": [
+              "TRANSFER",
+              "MERCADOPAGO",
+              "STRIPE",
+              "FREE"
+            ]
           },
-          "currency": { "type": "string", "enum": ["ARS", "CLP", "USD"] },
-          "showId": { "type": "string" },
-          "discountCode": { "type": "string" },
-          "shoppingCartReference": { "type": "string" },
-          "idempotencyKey": { "type": "string" },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "ARS",
+              "CLP",
+              "USD"
+            ]
+          },
+          "showId": {
+            "type": "string"
+          },
+          "discountCode": {
+            "type": "string"
+          },
+          "shoppingCartReference": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string"
+          },
           "expectedTotal": {
             "type": "number",
             "description": "Total opcional informado por el cliente. El servidor lo recalcula y rechaza diferencias con checkout_price_mismatch."
@@ -238,15 +396,30 @@
       },
       "CreatePaymentRequest": {
         "type": "object",
-        "required": ["orderId", "paymentMethod", "currency", "amount"],
+        "required": [
+          "orderId",
+          "paymentMethod",
+          "currency",
+          "amount"
+        ],
         "properties": {
-          "orderId": { "type": "string" },
+          "orderId": {
+            "type": "string"
+          },
           "paymentMethod": {
             "type": "string",
-            "enum": ["TRANSFER", "MERCADOPAGO", "STRIPE"]
+            "enum": [
+              "TRANSFER",
+              "MERCADOPAGO",
+              "STRIPE"
+            ]
           },
-          "currency": { "type": "string" },
-          "amount": { "type": "number" }
+          "currency": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
         }
       },
       "PaymentStatusResponse": {
@@ -254,11 +427,165 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["PENDING", "APPROVED", "REJECTED", "EXPIRED"]
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "EXPIRED"
+            ]
           },
-          "purchaseId": { "type": "string" },
-          "orderId": { "type": "string" }
+          "purchaseId": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          }
         }
+      },
+      "NextAction": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "none"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "paymentInstructions"
+            ],
+            "properties": {
+              "type": {
+                "const": "display_instructions"
+              },
+              "paymentInstructions": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "url"
+            ],
+            "properties": {
+              "type": {
+                "const": "redirect"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "clientSecret"
+            ],
+            "properties": {
+              "type": {
+                "const": "stripe_elements"
+              },
+              "clientSecret": {
+                "type": "string"
+              },
+              "publishableKey": {
+                "type": "string"
+              },
+              "paymentIntentId": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "intentId",
+              "clientSecret"
+            ],
+            "properties": {
+              "type": {
+                "const": "airwallex_dropin"
+              },
+              "intentId": {
+                "type": "string"
+              },
+              "clientSecret": {
+                "type": "string"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "env": {
+                "type": "string"
+              },
+              "countryCode": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "merchantCheckoutToken"
+            ],
+            "properties": {
+              "type": {
+                "const": "dlocal_fields"
+              },
+              "merchantCheckoutToken": {
+                "type": "string"
+              },
+              "smartFieldsApiKey": {
+                "type": "string"
+              },
+              "paymentId": {
+                "type": "string"
+              },
+              "sdkUrl": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "fintoc_widget"
+              },
+              "sessionToken": {
+                "type": "string"
+              },
+              "widgetToken": {
+                "type": "string"
+              },
+              "publicKey": {
+                "type": "string"
+              },
+              "holderType": {
+                "type": "string"
+              },
+              "product": {
+                "type": "string"
+              }
+            }
+          }
+        ]
       }
     },
     "responses": {
@@ -266,7 +593,9 @@
         "description": "Error público estable",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/TickeanError" }
+            "schema": {
+              "$ref": "#/components/schemas/TickeanError"
+            }
           }
         }
       }
@@ -275,15 +604,27 @@
   "paths": {
     "/v1/checkout/sessions": {
       "post": {
-        "tags": ["Sesiones"],
+        "tags": [
+          "Sesiones"
+        ],
         "summary": "Crear una sesión de checkout de corta duración",
-        "security": [{ "PublishableKey": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateSessionRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
             }
           }
         },
@@ -292,45 +633,79 @@
             "description": "Sesión creada",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SessionResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/TickeanError" },
-          "403": { "$ref": "#/components/responses/TickeanError" }
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          },
+          "403": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/catalog": {
       "get": {
-        "tags": ["Catálogo"],
+        "tags": [
+          "Catálogo"
+        ],
         "summary": "Obtener el catálogo público del evento de la sesión",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Catálogo público normalizado, sin opciones PROMO_GATED",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/PublicEvent" }
+                "schema": {
+                  "$ref": "#/components/schemas/PublicEvent"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/TickeanError" }
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/quote": {
       "post": {
-        "tags": ["Catálogo"],
+        "tags": [
+          "Catálogo"
+        ],
         "summary": "Cotizar en el servidor con un código opcional",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/QuoteRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/QuoteRequest"
+              }
             }
           }
         },
@@ -339,166 +714,351 @@
             "description": "Totales cotizados",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/QuoteResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/TickeanError" },
-          "409": { "$ref": "#/components/responses/TickeanError" }
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          },
+          "409": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/otp/send": {
       "post": {
-        "tags": ["Comprador"],
+        "tags": [
+          "Comprador"
+        ],
         "summary": "Enviar OTP al comprador con límite de solicitudes",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/SendOtpRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequest"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "OTP enviado" },
-          "429": { "$ref": "#/components/responses/TickeanError" }
+          "200": {
+            "description": "OTP enviado"
+          },
+          "429": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/otp/verify": {
       "post": {
-        "tags": ["Comprador"],
+        "tags": [
+          "Comprador"
+        ],
         "summary": "Verificar OTP y vincular el comprador con la sesión",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/VerifyOtpRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Comprador verificado en la sesión" },
-          "401": { "$ref": "#/components/responses/TickeanError" }
+          "200": {
+            "description": "Comprador verificado en la sesión"
+          },
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/purchases": {
       "post": {
-        "tags": ["Compra"],
+        "tags": [
+          "Compra"
+        ],
         "summary": "Crear una compra idempotente con precios revalidados",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreatePurchaseRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseRequest"
+              }
             }
           }
         },
         "responses": {
-          "201": { "description": "Compra creada" },
-          "401": { "$ref": "#/components/responses/TickeanError" },
-          "409": { "$ref": "#/components/responses/TickeanError" }
+          "201": {
+            "description": "Compra creada"
+          },
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          },
+          "409": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/payments": {
       "post": {
-        "tags": ["Pagos"],
+        "tags": [
+          "Pagos"
+        ],
         "summary": "Iniciar una transferencia o redirección de pago online",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreatePaymentRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentRequest"
+              }
             }
           }
         },
         "responses": {
-          "200": { "description": "Intención de pago o datos de transferencia" },
-          "401": { "$ref": "#/components/responses/TickeanError" }
+          "200": {
+            "description": "Intención de pago o datos de transferencia"
+          },
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/v1/checkout/payments/status": {
       "get": {
-        "tags": ["Pagos"],
-        "summary": "Consultar el estado del pago de la compra de la sesión",
-        "security": [{ "PublishableKey": [], "CheckoutSession": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/OriginHeader" }],
+        "tags": [
+          "Pagos"
+        ],
+        "summary": "Consultar estado de pago, requiresAction y nextAction reanudable",
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Estado actual del pago",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/PaymentStatusResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentStatusResponse"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/TickeanError" }
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     },
     "/integrations/checkout": {
       "get": {
-        "tags": ["Administración"],
+        "tags": [
+          "Administración"
+        ],
         "summary": "Dashboard: habilitación, claves, orígenes y webhooks",
         "description": "Endpoint autenticado para administradores de la organización. No debe usarse desde el navegador con claves publicables.",
         "responses": {
-          "200": { "description": "Estado de la integración" }
+          "200": {
+            "description": "Estado de la integración"
+          }
         }
       }
     },
     "/integrations/checkout/origins": {
       "put": {
-        "tags": ["Administración"],
+        "tags": [
+          "Administración"
+        ],
         "summary": "Reemplazar los orígenes autorizados",
         "responses": {
-          "200": { "description": "Orígenes actualizados" }
+          "200": {
+            "description": "Orígenes actualizados"
+          }
         }
       }
     },
     "/integrations/checkout/keys": {
       "post": {
-        "tags": ["Administración"],
+        "tags": [
+          "Administración"
+        ],
         "summary": "Crear una clave publicable, mostrada completa una sola vez",
         "responses": {
-          "201": { "description": "Clave creada" }
+          "201": {
+            "description": "Clave creada"
+          }
         }
       }
     },
     "/integrations/checkout/keys/{keyId}": {
       "delete": {
-        "tags": ["Administración"],
+        "tags": [
+          "Administración"
+        ],
         "summary": "Revocar una clave publicable",
         "parameters": [
           {
             "name": "keyId",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
-          "200": { "description": "Clave revocada" }
+          "200": {
+            "description": "Clave revocada"
+          }
         }
       }
     },
     "/integrations/checkout/webhooks": {
       "post": {
-        "tags": ["Administración"],
+        "tags": [
+          "Administración"
+        ],
         "summary": "Registrar un webhook con secreto mostrado una sola vez",
         "responses": {
-          "201": { "description": "Webhook creado" }
+          "201": {
+            "description": "Webhook creado"
+          }
+        }
+      }
+    },
+    "/v1/checkout/session": {
+      "get": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Recuperar la sesión activa y su fase",
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sesión recuperada"
+          },
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          }
+        }
+      }
+    },
+    "/v1/checkout/payments/confirm": {
+      "post": {
+        "tags": [
+          "Pagos"
+        ],
+        "summary": "Confirmar un pago que requiere segundo paso (p. ej. dLocal)",
+        "security": [
+          {
+            "PublishableKey": [],
+            "CheckoutSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paymentId": {
+                    "type": "string"
+                  },
+                  "confirmationToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pago confirmado o nextAction actualizado"
+          },
+          "400": {
+            "$ref": "#/components/responses/TickeanError"
+          }
         }
       }
     }

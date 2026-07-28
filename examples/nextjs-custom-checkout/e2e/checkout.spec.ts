@@ -20,3 +20,13 @@ test("demo checkout catalog → OTP → transfer", async ({ page }) => {
     timeout: 15000,
   });
 });
+
+test("renders the Elements checkout mode", async ({ page }) => {
+  await page.goto("/?mode=elements");
+
+  await expect(page.getByText(/Modo:\s*elements/i)).toBeVisible();
+  await expect(page.locator("tickean-checkout")).toBeVisible();
+  await expect(page.locator("tickean-checkout").locator("button").first()).toBeVisible({
+    timeout: 15000,
+  });
+});

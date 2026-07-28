@@ -9,4 +9,19 @@
 7. Confirmá que el retorno de Mercado Pago o Stripe llegue a tu `returnUrl`
 8. Monitoreá los `requestId` y las consultas del estado de pago
 
-Las guías de ReadMe y el OpenAPI están publicados. La publicación del SDK en npm sigue siendo un paso de lanzamiento separado.
+## Sandbox obligatorio por PSP
+
+Antes de habilitar `pk_live`, validá manualmente en sandbox/test:
+
+| Proveedor | Qué verificar |
+|-----------|----------------|
+| Transferencia / Talo | `nextAction.type = display_instructions` y confirmación operativa |
+| Stripe | Elements inline + 3DS simulado + retorno |
+| Airwallex | Drop-in monta y completa |
+| dLocal | Smart Fields + `payments/confirm` si aplica |
+| Fintoc | Widget + polling de estado |
+| Mercado Pago | Redirect firmado + return URL + rehidratación |
+
+Rollout aditivo: primero `pk_test` + capability/flag, sin romper el SDK headless v0.1 ni los endpoints existentes.
+
+Las guías de ReadMe y el OpenAPI están publicados. La publicación del SDK en npm sigue siendo un paso de lanzamiento separado (`npx changeset publish` cuando el scope `@tickean` esté listo).

@@ -16,6 +16,9 @@ export function createHttpTransport(options: {
       if (init.sessionToken) {
         headers["X-Tickean-Checkout-Session"] = init.sessionToken;
       }
+      if (init.idempotencyKey) {
+        headers["Idempotency-Key"] = init.idempotencyKey;
+      }
 
       const response = await fetchImpl(
         `${options.apiBaseUrl.replace(/\/$/, "")}${path}`,
@@ -27,6 +30,11 @@ export function createHttpTransport(options: {
         },
       );
 
+      const requestId =
+        response.headers.get("X-Request-Id") ||
+        response.headers.get("x-request-id") ||
+        undefined;
+
       const json = await response.json().catch(() => ({}));
       if (!response.ok) {
         const err = json?.error || {};
@@ -37,6 +45,7 @@ export function createHttpTransport(options: {
             details: err.details,
           },
           response.status,
+          requestId,
         );
       }
       return json as T;

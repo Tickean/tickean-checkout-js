@@ -1,7 +1,7 @@
 {
   "name": "@tickean/react-checkout",
-  "version": "0.1.0",
-  "description": "React hooks for Tickean Headless Checkout",
+  "version": "0.2.0",
+  "description": "React hooks and Elements wrappers for Tickean Headless Checkout",
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -21,7 +21,8 @@
     "react": ">=18"
   },
   "dependencies": {
-    "@tickean/checkout-js": "0.1.0"
+    "@tickean/checkout-js": "0.2.0",
+    "@tickean/checkout-elements": "0.2.0"
   },
   "scripts": {
     "build": "tsup src/index.tsx --format cjs,esm --dts --clean --external react",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
+    "jsdom": "^26.0.0",
     "react": "^19.0.0",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",

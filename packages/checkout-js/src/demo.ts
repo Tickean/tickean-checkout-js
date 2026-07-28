@@ -9,6 +9,7 @@ import type {
   PurchaseResult,
   QuoteResult,
 } from "./types";
+import { TickeanError } from "./types";
 
 const demoEvent: PublicEvent = {
   id: "evt_demo",
@@ -80,14 +81,31 @@ const demoEvent: PublicEvent = {
 export function createDemoTransport(): CheckoutTransport {
   let sessionToken = "demo_session_token";
   let buyer: Buyer | null = null;
-  let unlocked: typeof demoEvent.shows[0]["showOptions"] = [];
+  let unlocked: (typeof demoEvent.shows)[0]["showOptions"] = [];
   let purchaseId = "purchase_demo";
   let cartRef = "cart_demo";
+  let lastPayment: PaymentResult | null = null;
+  let paymentConfirmed = false;
+
+  const publicEvent = (): PublicEvent => ({
+    ...demoEvent,
+    shows: demoEvent.shows.map((show) => ({
+      ...show,
+      showOptions: [
+        ...show.showOptions.filter((o) => o.catalogVisibility !== "PROMO_GATED"),
+        ...unlocked.filter((u) => show.showOptions.some((o) => o.id === u.id)),
+      ],
+    })),
+  });
 
   return {
     async request<T>(path, init) {
       if (path === "/v1/checkout/sessions" && init.method === "POST") {
         sessionToken = `demo_${Date.now()}`;
+        buyer = null;
+        unlocked = [];
+        paymentConfirmed = false;
+        lastPayment = null;
         return {
           sessionId: "sess_demo",
           sessionToken,
@@ -107,24 +125,40 @@ export function createDemoTransport(): CheckoutTransport {
             transfer: true,
             onlinePayments: true,
           },
+          phase: "browsing",
+        } satisfies CheckoutSession as T;
+      }
+
+      if (path === "/v1/checkout/session") {
+        return {
+          sessionId: "sess_demo",
+          sessionToken,
+          expiresAt: new Date(Date.now() + 3600000).toISOString(),
+          event: publicEvent(),
+          capabilities: {
+            tickets: true,
+            discounts: true,
+            transfer: true,
+            onlinePayments: true,
+          },
+          status: "ACTIVE",
+          otpVerified: Boolean(buyer),
+          buyerId: buyer?.id || null,
+          purchaseId: purchaseId.startsWith("purchase_") ? purchaseId : null,
+          shoppingCartReference: cartRef,
+          nextAction: lastPayment?.nextAction || { type: "none" },
+          phase: paymentConfirmed
+            ? "completed"
+            : lastPayment
+              ? "requires_action"
+              : buyer
+                ? "ready_to_purchase"
+                : "browsing",
         } satisfies CheckoutSession as T;
       }
 
       if (path === "/v1/checkout/catalog") {
-        return {
-          ...demoEvent,
-          shows: demoEvent.shows.map((show) => ({
-            ...show,
-            showOptions: [
-              ...show.showOptions.filter(
-                (o) => o.catalogVisibility !== "PROMO_GATED",
-              ),
-              ...unlocked.filter((u) =>
-                show.showOptions.some((o) => o.id === u.id),
-              ),
-            ],
-          })),
-        } satisfies PublicEvent as T;
+        return publicEvent() satisfies PublicEvent as T;
       }
 
       if (path === "/v1/checkout/quote" && init.method === "POST") {
@@ -156,7 +190,11 @@ export function createDemoTransport(): CheckoutTransport {
       }
 
       if (path === "/v1/checkout/otp/verify") {
-        const body = init.body as { phone: string; name?: string; email?: string };
+        const body = init.body as {
+          phone: string;
+          name?: string;
+          email?: string;
+        };
         buyer = {
           id: "buyer_demo",
           phone: body.phone,
@@ -168,11 +206,16 @@ export function createDemoTransport(): CheckoutTransport {
 
       if (path === "/v1/checkout/purchases") {
         if (!buyer) {
-          throw Object.assign(new Error("OTP required"), {
+          throw new TickeanError({
             code: "checkout_otp_required",
+            message: "OTP required",
           });
         }
-        const body = init.body as { items: CartItem[]; currency: string; paymentMethod: string };
+        const body = init.body as {
+          items: CartItem[];
+          currency: string;
+          paymentMethod: string;
+        };
         const allOptions = demoEvent.shows.flatMap((s) => s.showOptions);
         const total = body.items.reduce((sum, item) => {
           const opt = allOptions.find((o) => o.id === item.showOptionId);
@@ -195,26 +238,79 @@ export function createDemoTransport(): CheckoutTransport {
       }
 
       if (path === "/v1/checkout/payments") {
-        return {
-          id: `pay_${Date.now()}`,
-          paymentStatus: "PENDING",
-          paymentMethod: (init.body as any)?.paymentMethod,
-          paymentInstructions: {
-            alias: "tickean.demo",
-            cvu: "0000003100010000000001",
-            amount: (init.body as any)?.amount,
-          },
-          redirectUrl: undefined,
-          returnUrl: null,
-        } satisfies PaymentResult as T;
+        const body = init.body as {
+          paymentMethod?: string;
+          amount?: number;
+        };
+        const method = String(body?.paymentMethod || "TRANSFER").toUpperCase();
+        if (method === "TRANSFER") {
+          lastPayment = {
+            id: `pay_${Date.now()}`,
+            paymentStatus: "PENDING",
+            paymentMethod: method,
+            paymentInstructions: {
+              alias: "tickean.demo",
+              cvu: "0000003100010000000001",
+              amount: body?.amount,
+            },
+            redirectUrl: undefined,
+            returnUrl: null,
+            nextAction: {
+              type: "display_instructions",
+              paymentInstructions: {
+                alias: "tickean.demo",
+                cvu: "0000003100010000000001",
+                amount: body?.amount,
+              },
+            },
+            requiresAction: false,
+          };
+        } else {
+          lastPayment = {
+            id: `pay_${Date.now()}`,
+            paymentStatus: "PENDING",
+            paymentMethod: method,
+            redirectUrl: "https://example.com/pay/demo",
+            returnUrl: null,
+            nextAction: {
+              type: "redirect",
+              url: "https://example.com/pay/demo",
+            },
+            requiresAction: true,
+          };
+        }
+        return lastPayment as T;
+      }
+
+      if (path === "/v1/checkout/payments/confirm" && init.method === "POST") {
+        paymentConfirmed = true;
+        lastPayment = {
+          ...(lastPayment || { id: `pay_${Date.now()}` }),
+          paymentStatus: "COMPLETED",
+          nextAction: { type: "none" },
+          requiresAction: false,
+        };
+        return lastPayment as T;
       }
 
       if (path === "/v1/checkout/payments/status") {
         return {
-          status: "PENDING",
+          status: paymentConfirmed ? "COMPLETED" : "PENDING",
+          requiresAction: Boolean(
+            lastPayment?.nextAction &&
+              lastPayment.nextAction.type !== "none" &&
+              !paymentConfirmed,
+          ),
+          phase: paymentConfirmed
+            ? "completed"
+            : lastPayment
+              ? "requires_action"
+              : "browsing",
+          nextAction: lastPayment?.nextAction || { type: "none" },
+          payment: lastPayment,
           purchase: {
             id: purchaseId,
-            status: "PENDING",
+            status: paymentConfirmed ? "COMPLETED" : "PENDING",
             totalPrice: 0,
             currency: "ARS",
             shoppingCartReference: cartRef,
@@ -222,7 +318,9 @@ export function createDemoTransport(): CheckoutTransport {
         } satisfies PaymentStatusResult as T;
       }
 
-      throw new Error(`Demo transport: unhandled ${init.method || "GET"} ${path}`);
+      throw new Error(
+        `Demo transport: unhandled ${init.method || "GET"} ${path}`,
+      );
     },
   };
 }

@@ -1,29 +1,55 @@
 import {
   createContext,
+  createElement,
   useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type HTMLAttributes,
   type ReactNode,
 } from "react";
 import {
+  createCheckoutController,
   createTickean,
   type CartItem,
+  type CheckoutController,
+  type CheckoutPhase,
   type CheckoutSession,
+  type CheckoutState,
+  type NextAction,
   type PublicEvent,
   type QuoteResult,
   type TickeanClient,
+  type TickeanError,
+  type Buyer,
 } from "@tickean/checkout-js";
+import {
+  attachController,
+  defineTickeanElements,
+  detachController,
+} from "@tickean/checkout-elements";
+
+if (typeof window !== "undefined") {
+  defineTickeanElements();
+}
 
 type TickeanContextValue = {
   client: TickeanClient;
+  controller: CheckoutController;
   session: CheckoutSession | null;
   event: PublicEvent | null;
   loading: boolean;
-  error: string | null;
+  error: TickeanError | string | null;
   cart: CartItem[];
   quote: QuoteResult | null;
+  phase: CheckoutPhase;
+  isQuoting: boolean;
+  buyer: Buyer | null;
+  nextAction: NextAction;
   setCartItem: (showOptionId: string, amount: number) => void;
   refreshCatalog: () => Promise<void>;
   applyDiscountCode: (code: string) => Promise<QuoteResult>;
@@ -41,6 +67,7 @@ type TickeanContextValue = {
   }) => Promise<{
     purchaseId: string;
     payment: Awaited<ReturnType<TickeanClient["createPayment"]>>;
+    nextAction: NextAction;
   }>;
 };
 
@@ -55,6 +82,14 @@ export type TickeanProviderProps = {
   children: ReactNode;
 };
 
+function useControllerSnapshot(controller: CheckoutController): CheckoutState {
+  return useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
+}
+
 export function TickeanProvider({
   publishableKey,
   eventSlug,
@@ -63,93 +98,46 @@ export function TickeanProvider({
   demo,
   children,
 }: TickeanProviderProps) {
-  const client = useMemo(
+  const controller = useMemo(
     () =>
-      createTickean({
+      createCheckoutController({
         publishableKey,
+        eventSlug,
         apiBaseUrl,
+        returnUrl,
         demo,
+        persistence: false,
       }),
-    [publishableKey, apiBaseUrl, demo],
+    [publishableKey, eventSlug, apiBaseUrl, returnUrl, demo],
   );
 
-  const [session, setSession] = useState<CheckoutSession | null>(null);
-  const [event, setEvent] = useState<PublicEvent | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [quote, setQuote] = useState<QuoteResult | null>(null);
-
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const created = await client.createSession({ eventSlug, returnUrl });
-        if (cancelled) return;
-        setSession(created);
-        setEvent(created.event);
-      } catch (err: any) {
-        if (!cancelled) setError(err?.message || "Failed to start checkout");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [client, eventSlug, returnUrl]);
+    return () => controller.dispose();
+  }, [controller]);
+
+  const snapshot = useControllerSnapshot(controller);
+
+  const setCartItem = useCallback(
+    (showOptionId: string, amount: number) => {
+      controller.setCartItem(showOptionId, amount);
+    },
+    [controller],
+  );
 
   const refreshCatalog = useCallback(async () => {
-    const catalog = await client.getCatalog();
-    setEvent(catalog);
-  }, [client]);
-
-  const setCartItem = useCallback((showOptionId: string, amount: number) => {
-    setCart((current) => {
-      const next = current.filter((item) => item.showOptionId !== showOptionId);
-      if (amount > 0) next.push({ showOptionId, amount });
-      return next;
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!session || cart.length === 0) {
-      setQuote(null);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const result = await client.quote({ items: cart });
-        if (!cancelled) setQuote(result);
-      } catch (err: any) {
-        if (!cancelled) setError(err?.message || "Quote failed");
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [cart, client, session]);
+    await controller.refreshCatalog();
+  }, [controller]);
 
   const applyDiscountCode = useCallback(
-    async (code: string) => {
-      const result = await client.quote({ items: cart, discountCode: code });
-      setQuote(result);
-      if ((result.unlockedShowOptions || []).length > 0) {
-        await refreshCatalog();
-      }
-      return result;
-    },
-    [cart, client, refreshCatalog],
+    async (code: string) => controller.applyDiscountCode(code),
+    [controller],
   );
 
   const sendOtp = useCallback(
     async (phone: string) => {
-      await client.sendOtp({ phone });
+      await controller.sendOtp(phone);
     },
-    [client],
+    [controller],
   );
 
   const verifyOtp = useCallback(
@@ -159,9 +147,9 @@ export function TickeanProvider({
       name?: string;
       email?: string;
     }) => {
-      await client.verifyOtp(params);
+      await controller.verifyOtp(params);
     },
-    [client],
+    [controller],
   );
 
   const checkout = useCallback(
@@ -170,32 +158,29 @@ export function TickeanProvider({
       currency: string;
       discountCode?: string;
     }) => {
-      const purchase = await client.createPurchase({
-        items: cart,
-        paymentMethod: params.paymentMethod,
-        currency: params.currency,
-        discountCode: params.discountCode,
-        expectedTotal: quote?.totalPrice,
-      });
-      const payment = await client.createPayment({
-        orderId: purchase.purchase.id,
-        paymentMethod: params.paymentMethod,
-        currency: params.currency,
-        amount: purchase.purchase.totalPrice,
-      });
-      return { purchaseId: purchase.purchase.id, payment };
+      const result = await controller.purchaseAndPay(params);
+      return {
+        purchaseId: result.purchaseId,
+        payment: result.payment,
+        nextAction: result.nextAction,
+      };
     },
-    [cart, client, quote?.totalPrice],
+    [controller],
   );
 
   const value: TickeanContextValue = {
-    client,
-    session,
-    event,
-    loading,
-    error,
-    cart,
-    quote,
+    client: controller.client,
+    controller,
+    session: snapshot.session,
+    event: snapshot.event,
+    loading: snapshot.loading,
+    error: snapshot.error,
+    cart: snapshot.cart,
+    quote: snapshot.quote,
+    phase: snapshot.phase,
+    isQuoting: snapshot.isQuoting,
+    buyer: snapshot.buyer,
+    nextAction: snapshot.nextAction,
     setCartItem,
     refreshCatalog,
     applyDiscountCode,
@@ -218,32 +203,166 @@ function useTickeanContext() {
 }
 
 export function useEvent() {
-  const { event, loading, error, refreshCatalog } = useTickeanContext();
-  return { event, loading, error, refreshCatalog };
-}
-
-export function useCart() {
-  const { cart, quote, setCartItem, applyDiscountCode } = useTickeanContext();
-  return { cart, quote, setCartItem, applyDiscountCode };
-}
-
-export function useBuyerVerification() {
-  const { sendOtp, verifyOtp } = useTickeanContext();
-  return { sendOtp, verifyOtp };
-}
-
-export function useCheckout() {
-  const { checkout, quote, cart, session } = useTickeanContext();
-  return { checkout, quote, cart, session };
-}
-
-export function usePayment() {
-  const { client } = useTickeanContext();
+  const { event, loading, error, refreshCatalog, phase } = useTickeanContext();
   return {
-    getPaymentStatus: () => client.getPaymentStatus(),
-    watchPayment: (options?: Parameters<TickeanClient["watchPayment"]>[0]) =>
-      client.watchPayment(options),
+    event,
+    loading,
+    error: error instanceof Error ? error.message : error,
+    refreshCatalog,
+    phase,
   };
 }
 
-export { createTickean } from "@tickean/checkout-js";
+export function useCart() {
+  const { cart, quote, setCartItem, applyDiscountCode, isQuoting } =
+    useTickeanContext();
+  return { cart, quote, setCartItem, applyDiscountCode, isQuoting };
+}
+
+export function useBuyerVerification() {
+  const { sendOtp, verifyOtp, buyer } = useTickeanContext();
+  return { sendOtp, verifyOtp, buyer };
+}
+
+export function useCheckout() {
+  const { checkout, quote, cart, session, phase, nextAction, error, isQuoting } =
+    useTickeanContext();
+  return {
+    checkout,
+    quote,
+    cart,
+    session,
+    phase,
+    nextAction,
+    error: error instanceof Error ? error : error,
+    isQuoting,
+  };
+}
+
+export function usePayment() {
+  const { client, controller, nextAction, phase } = useTickeanContext();
+  return {
+    getPaymentStatus: () => client.getPaymentStatus(),
+    watchPayment: (options?: Parameters<TickeanClient["watchPayment"]>[0]) =>
+      controller.watchPayment(options),
+    confirmPayment: (
+      params?: Parameters<CheckoutController["confirmPayment"]>[0],
+    ) => controller.confirmPayment(params),
+    nextAction,
+    phase,
+  };
+}
+
+export function useTickeanController() {
+  return useTickeanContext().controller;
+}
+
+type ElementProps = {
+  appearance?: string;
+  locale?: string;
+  className?: string;
+  style?: CSSProperties;
+} & HTMLAttributes<HTMLElement>;
+
+function useBoundElement(tag: string, extraAttrs?: Record<string, string>) {
+  const { controller } = useTickeanContext();
+  const ref = useRef<HTMLElement | null>(null);
+  const controllerIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    controllerIdRef.current = attachController(el, controller);
+    return () => {
+      if (controllerIdRef.current) {
+        detachController(controllerIdRef.current);
+        controllerIdRef.current = null;
+      }
+    };
+  }, [controller]);
+
+  return {
+    ref,
+    tag,
+    extraAttrs,
+  };
+}
+
+function WebComponent({
+  tag,
+  appearance,
+  locale,
+  className,
+  style,
+  extra = {},
+  ...rest
+}: ElementProps & { tag: string; extra?: Record<string, string> }) {
+  const bound = useBoundElement(tag);
+  return createElement(tag, {
+    ref: bound.ref,
+    className,
+    style,
+    appearance,
+    locale,
+    ...extra,
+    ...rest,
+  });
+}
+
+export function TickeanCheckout(props: ElementProps & {
+  paymentMethod?: string;
+  currency?: string;
+}) {
+  const { paymentMethod, currency, ...rest } = props;
+  return (
+    <WebComponent
+      tag="tickean-checkout"
+      extra={{
+        ...(paymentMethod ? { "payment-method": paymentMethod } : {}),
+        ...(currency ? { currency } : {}),
+      }}
+      {...rest}
+    />
+  );
+}
+
+export function TicketSelector(props: ElementProps) {
+  return <WebComponent tag="tickean-ticket-selector" {...props} />;
+}
+
+export function DiscountField(props: ElementProps) {
+  return <WebComponent tag="tickean-discount" {...props} />;
+}
+
+export function BuyerVerification(props: ElementProps) {
+  return <WebComponent tag="tickean-buyer-verification" {...props} />;
+}
+
+export function PaymentElement(
+  props: ElementProps & { paymentMethod?: string; currency?: string },
+) {
+  const { paymentMethod, currency, ...rest } = props;
+  return (
+    <WebComponent
+      tag="tickean-payment"
+      extra={{
+        ...(paymentMethod ? { "payment-method": paymentMethod } : {}),
+        ...(currency ? { currency } : {}),
+      }}
+      {...rest}
+    />
+  );
+}
+
+export function OrderSummary(props: ElementProps) {
+  return <WebComponent tag="tickean-order-summary" {...props} />;
+}
+
+export { createTickean, createCheckoutController };
+export type {
+  CheckoutPhase,
+  NextAction,
+  TickeanError,
+  Buyer,
+  CheckoutState,
+};
