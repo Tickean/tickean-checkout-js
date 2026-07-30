@@ -91,6 +91,25 @@ export type CheckoutSession = {
   returnUrl?: string | null;
 };
 
+export type PromotionNxM = {
+  enabled?: boolean;
+  buyQty?: number;
+  payQty?: number;
+  label?: string;
+  startsAt?: string;
+  endsAt?: string;
+};
+
+export type QuantityDiscount = {
+  enabled?: boolean;
+  type?: "SECOND_UNIT_PERCENT" | "NTH_UNIT_PERCENT" | string;
+  targetUnit?: number;
+  percentOff?: number;
+  label?: string;
+  startsAt?: string;
+  endsAt?: string;
+};
+
 export type PublicShowOption = {
   id: string;
   name?: string;
@@ -98,15 +117,20 @@ export type PublicShowOption = {
   price: number;
   currency?: string;
   stock?: number;
+  sold?: number;
+  reserved?: number;
+  availableStock?: number;
   maxPerPurchase?: number;
   optionType?: string;
   accessScope?: string;
   coveredShowIds?: string[];
   passIssuanceMode?: "PER_DAY" | "SINGLE_PASS";
   catalogVisibility?: "PUBLIC" | "PROMO_GATED";
-  promotionNxM?: unknown;
-  quantityDiscount?: unknown;
+  promotionNxM?: PromotionNxM | null;
+  quantityDiscount?: QuantityDiscount | null;
   status?: string;
+  /** Present on options returned via promo unlock. */
+  showId?: string;
 };
 
 export type PublicShow = {
@@ -117,6 +141,31 @@ export type PublicShow = {
   showOptions: PublicShowOption[];
 };
 
+export type RegistrationQuestion = {
+  id: string;
+  type?: string;
+  label?: string;
+  required?: boolean;
+  options?: string[];
+};
+
+export type RegistrationSettings = {
+  maxAttendeesPerPurchase?: number;
+  requireAttendeeEmail?: boolean;
+  requireAttendeePhone?: boolean;
+  terms?: { required?: boolean; label?: string | null; pdfUrl?: string | null } | null;
+  questions?: RegistrationQuestion[];
+};
+
+export type PurchaseAttendee = {
+  showOptionId: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  termsAccepted?: boolean;
+};
+
 export type PublicEvent = {
   id: string;
   slug: string;
@@ -125,6 +174,9 @@ export type PublicEvent = {
   images?: unknown[];
   location?: unknown;
   availablePaymentMethods?: string[];
+  hasPromoGatedShowOptions?: boolean;
+  collectAttendeeData?: boolean;
+  registrationSettings?: RegistrationSettings | null;
   organization?: {
     id?: string;
     slug?: string;
@@ -144,6 +196,7 @@ export type QuoteResult = {
   totalPrice: number;
   pricingBreakdown?: unknown;
   discountCode?: unknown;
+  message?: string;
   unlockedShowOptionIds?: string[];
   unlockedShowOptions?: PublicShowOption[];
 };

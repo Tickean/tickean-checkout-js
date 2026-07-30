@@ -240,4 +240,30 @@ describe("createCheckoutController demo flow", () => {
 
     controller.dispose();
   });
+
+  it("resumes a persisted session without creating another", async () => {
+    const persistence = createMemoryPersistence();
+    const first = createCheckoutController({
+      publishableKey: "pk_test_demo",
+      demo: true,
+      eventSlug: "demo-festival",
+      persistence,
+      persistenceKey: "resume-test",
+    });
+    await first.ready;
+    const token = first.getSnapshot().session?.sessionToken;
+    expect(token).toBeTruthy();
+    first.dispose();
+
+    const second = createCheckoutController({
+      publishableKey: "pk_test_demo",
+      demo: true,
+      eventSlug: "demo-festival",
+      persistence,
+      persistenceKey: "resume-test",
+    });
+    await second.ready;
+    expect(second.getSnapshot().session?.sessionToken).toBe(token);
+    second.dispose();
+  });
 });

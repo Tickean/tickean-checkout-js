@@ -4,6 +4,7 @@ import { registerController, unregisterController } from "./context";
 import "./elements/ticket-selector";
 import "./elements/discount";
 import "./elements/buyer-verification";
+import "./elements/attendees";
 import "./elements/payment";
 import "./elements/order-summary";
 import "./elements/checkout";
@@ -11,6 +12,7 @@ import "./elements/checkout";
 export { TickeanTicketSelector } from "./elements/ticket-selector";
 export { TickeanDiscount } from "./elements/discount";
 export { TickeanBuyerVerification } from "./elements/buyer-verification";
+export { TickeanAttendees } from "./elements/attendees";
 export { TickeanPayment } from "./elements/payment";
 export { TickeanOrderSummary } from "./elements/order-summary";
 export { TickeanCheckout } from "./elements/checkout";
@@ -27,6 +29,7 @@ const ELEMENT_TAGS = [
   "tickean-ticket-selector",
   "tickean-discount",
   "tickean-buyer-verification",
+  "tickean-attendees",
   "tickean-payment",
   "tickean-order-summary",
 ] as const;

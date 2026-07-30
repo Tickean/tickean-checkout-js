@@ -2,6 +2,16 @@
 
 Integrá el checkout white-label de Tickean en WordPress con Web Components (`<tickean-checkout>`). No requiere React ni un plugin de marketplace: un bloque HTML o un shortcode es suficiente.
 
+**Drop-in:** un solo `<tickean-checkout>` monta un checkout **por pasos** (Entradas → Tus datos → Pago → Listo), estilo Stripe. No hace falta componer child elements ni escribir JS de wizard.
+
+## Vista previa
+
+![Entradas](https://d1eg24w7igwib6.cloudfront.net/1.wizard.png)
+
+![Pago / transferencia](https://d1eg24w7igwib6.cloudfront.net/6.wizard_transfers_details.png)
+
+Guía ilustrada: [Flujo del wizard](./23-wizard-flow.md).
+
 ## Requisitos
 
 1. Entitlement **Custom Checkout** habilitado en la organización (Dashboard Tickean).
@@ -15,16 +25,26 @@ Ver [Claves y dominios](./03-keys-and-domains.md).
 
 ## Cómo cargar el SDK
 
-Tickean Elements se publica en npm como ESM. En WordPress, la vía recomendada es **CDN** (jsDelivr) con un `importmap`.
+Tickean Elements se publica en npm como ESM. En WordPress, la vía recomendada es **CDN** (jsDelivr).
 
-### CDN (recomendado)
+Usá **checkout-js ≥ 0.2.11** y **Elements ≥ 0.2.22** (wizard + recovery `?resume=`).
+
+### WordPress 6.5+ (recomendado)
+
+Registrá los paquetes con `wp_register_script_module` para que entren al **único** importmap de WP. Un segundo `<script type="importmap">` lo ignora el browser y rompe los imports bare (`@tickean/checkout-js`).
+
+Ver el mu-plugin completo en [`examples/recipes/wordpress.md`](../../examples/recipes/wordpress.md).
+
+### CDN + importmap manual
+
+Solo si no usás script modules de WP (o un tema muy viejo):
 
 ```html
 <script type="importmap">
 {
   "imports": {
-    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.0/dist/index.mjs",
-    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.0/dist/index.mjs"
+    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.11/dist/index.mjs",
+    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.22/dist/index.mjs"
   }
 }
 </script>
@@ -33,17 +53,13 @@ Tickean Elements se publica en npm como ESM. En WordPress, la vía recomendada e
 </script>
 ```
 
-Fijá la versión (`@0.2.0`) en producción. Podés usar `unpkg.com` con la misma ruta de paquete.
+Fijá la versión en producción. Podés usar `unpkg.com` con la misma ruta de paquete.
 
 ### Self-host (opcional)
 
-Si preferís no depender de un CDN:
-
-1. `npm pack @tickean/checkout-js@0.2.0 @tickean/checkout-elements@0.2.0` (o instalá los paquetes y tomá `node_modules/@tickean/*/dist/index.mjs`).
+1. `npm install @tickean/checkout-js@0.2.11 @tickean/checkout-elements@0.2.22` y tomá `node_modules/@tickean/*/dist/index.mjs`.
 2. Subí los `.mjs` a `/wp-content/uploads/tickean/` o a los assets del tema.
-3. Apuntá el `importmap` a esas URLs HTTPS absolutas.
-
-El bundle es ESM: usá siempre `type="module"` (o `type="importmap"` + module).
+3. Apuntá el importmap / `wp_register_script_module` a esas URLs HTTPS absolutas.
 
 ## Opción 1 — Bloque HTML personalizado
 
@@ -53,8 +69,8 @@ En Gutenberg: **+ → HTML personalizado**. Pegá:
 <script type="importmap">
 {
   "imports": {
-    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.0/dist/index.mjs",
-    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.0/dist/index.mjs"
+    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.11/dist/index.mjs",
+    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.22/dist/index.mjs"
   }
 }
 </script>
@@ -67,7 +83,7 @@ En Gutenberg: **+ → HTML personalizado**. Pegá:
   event-slug="demo-festival"
   api-base-url="https://api.tickean.com"
   locale="es-AR"
-  appearance='{"theme":"flat"}'
+  appearance="flat"
   payment-method="TRANSFER"
   currency="ARS"
 ></tickean-checkout>
@@ -96,10 +112,11 @@ Luego, en cualquier página o entrada:
 | `event_slug` | *(obligatorio)* | Slug del evento |
 | `locale` | `es-AR` | `es-AR`, `es-CL` o `en` |
 | `appearance` | `default` | `default`, `flat`, `night`, `none` o JSON |
+| `layout` | `steps` | `steps` (wizard) o `stacked` (todo a la vez) |
 | `api_base_url` | `https://api.tickean.com` | Base de la API pública |
 | `payment_method` | `TRANSFER` | Método inicial del Elements |
 | `currency` | `ARS` | Moneda del checkout |
-| `return_url` | URL actual | Página de retorno post-pago |
+| `return_url` | URL actual | Página de retorno post-pago **y** base del link de recovery |
 
 Definí la clave fuera del editor:
 
@@ -107,6 +124,33 @@ Definí la clave fuera del editor:
 // wp-config.php o mu-plugin
 define('TICKEAN_PUBLISHABLE_KEY', 'pk_test_...');
 ```
+
+## Checkout por pasos (default)
+
+`<tickean-checkout>` usa `layout="steps"` por defecto:
+
+1. **Entradas** — catálogo + descuento; Continuar con carrito no vacío
+2. **Tus datos** — teléfono / OTP; Continuar cuando el buyer está verificado
+3. **Pago** — resumen + confirmar compra / instrucciones PSP
+4. **Listo** — confirmación al completar (`phase === "completed"`)
+
+Escape hatch:
+
+```
+[tickean_checkout event_slug="mi-evento" layout="stacked"]
+```
+
+## Recovery (carrito abandonado)
+
+Si alguien deja el wizard a medias (entradas + teléfono verificado, pago no completado), Tickean puede enviar mail/SMS con un link a **esta misma página**:
+
+```
+https://tusitio.com/tu-pagina/?resume=CODE
+```
+
+El shortcode ya setea `return-url` a la URL actual. Elements (≥ 0.2.22) lee `?resume=`, rehidrata carrito/buyer/purchase y salta al paso correcto.
+
+Detalle: [Reanudar sesión](./18-session-resume.md).
 
 ## Appearance y locale
 
@@ -139,6 +183,8 @@ Si el PSP redirige (Mercado Pago, etc.):
 2. Pasá `return_url="https://tusitio.com/checkout/retorno/"` en el shortcode o atributo del elemento.
 3. El origen de esa URL debe coincidir con el dominio allowlisteado.
 
+Para recovery por abandono, la `return_url` debe ser la página donde está montado el checkout (default del shortcode).
+
 Ver [Pagos y retornos](./07-payments-returns.md) y [Reanudar sesión](./18-session-resume.md).
 
 ## CSP, caché y builders
@@ -170,9 +216,11 @@ script-src 'self' https://cdn.jsdelivr.net;
 
 1. Origen HTTPS exacto en el allowlist.
 2. `pk_live_…` solo en producción (nunca en repos públicos).
-3. Compra de prueba completa: catálogo → OTP → pago → retorno / instrucciones.
-4. CSP y plugins de caché validados.
-5. Webhooks configurados si tu integración los requiere ([Webhooks](./08-webhooks.md)).
+3. Compra de prueba completa: entradas → OTP → pago → retorno / instrucciones.
+4. **checkout-js ≥ 0.2.11** y **Elements ≥ 0.2.22**.
+5. Probar un link `?resume=` de recovery (abandonar tras OTP y esperar el mail/SMS, o usar un code de prueba interno).
+6. CSP y plugins de caché validados.
+7. Webhooks configurados si tu integración los requiere ([Webhooks](./08-webhooks.md)).
 
 ## Troubleshooting
 
@@ -180,8 +228,10 @@ script-src 'self' https://cdn.jsdelivr.net;
 |---------|-------------|
 | El shortcode se ve como texto | El snippet PHP no está cargado (tema hijo / mu-plugin). |
 | Consola: CORS / origin not allowed | Dominio exacto en Dashboard (con `https://`, sin path). |
-| Consola: failed to resolve module | URLs del `importmap` o versión de paquete incorrecta. |
+| Consola: failed to resolve module | URLs del importmap / script modules, o segundo importmap ignorado. |
+| Se queda en “Cargando checkout…” | Elements &lt; 0.2.1, o clave/event/entitlement inválidos. |
 | Checkout vacío | Clave inválida, entitlement deshabilitado, o `event_slug` incorrecto. |
+| `?resume=` no rehidrata | Elements &lt; 0.2.22, code expirado/usado, o origin no allowlisteado. |
 | Funciona en local y no en prod | Caché, CSP, o `pk_test` contra dominio live. |
 | OTP / quote falla | [Troubleshooting general](./19-troubleshooting.md). |
 

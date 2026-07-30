@@ -1017,6 +1017,58 @@
         }
       }
     },
+    "/v1/checkout/recovery/exchange": {
+      "post": {
+        "tags": [
+          "Sesiones"
+        ],
+        "summary": "Canjear código de recovery (?resume=) y crear sesión headless rehidratada",
+        "description": "Usado por Elements / WordPress cuando el comprador abre el link de abandono. Requiere publishable key + Origin; no requiere session token previo.",
+        "security": [
+          {
+            "PublishableKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OriginHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "Código opaco del query param resume"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sesión headless creada con cart, buyer, purchase y nextAction si aplica"
+          },
+          "400": {
+            "$ref": "#/components/responses/TickeanError"
+          },
+          "401": {
+            "$ref": "#/components/responses/TickeanError"
+          },
+          "404": {
+            "$ref": "#/components/responses/TickeanError"
+          }
+        }
+      }
+    },
     "/v1/checkout/payments/confirm": {
       "post": {
         "tags": [

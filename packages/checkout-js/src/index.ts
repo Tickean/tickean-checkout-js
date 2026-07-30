@@ -20,3 +20,9 @@ export {
   type TelemetryListener,
 } from "./telemetry";
 export * from "./types";
+export {
+  watchPaymentSocket,
+  type PaymentSocketSnapshot,
+  type PaymentSocketWatchHandle,
+} from "./payment-socket";
+export { navigateTopLevel, resolveRedirectUrl } from "./navigate";

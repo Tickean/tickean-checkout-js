@@ -1,6 +1,7 @@
 import { createDemoTransport } from "./demo";
 import { createHttpTransport } from "./http";
 import type {
+  Buyer,
   CartItem,
   CheckoutSession,
   CheckoutTransport,
@@ -64,6 +65,56 @@ export function createTickean(options: CreateTickeanOptions) {
       return session;
     },
 
+    async exchangeRecovery(params: { code: string }): Promise<{
+      sessionId: string;
+      sessionToken: string;
+      expiresAt: string;
+      suggestedStep?: string | number;
+      event: import("./types").PublicEvent;
+      capabilities?: Record<string, boolean>;
+      cart: CartItem[];
+      discountCode?: string | null;
+      buyer?: Buyer | null;
+      buyerVerified?: boolean;
+      purchase?: PurchaseResult["purchase"] | null;
+      payment?: PaymentResult | null;
+      nextAction?: NextAction;
+      shoppingCartReference?: string | null;
+      phase?: string;
+    }> {
+      const result = await transport.request<{
+        sessionId: string;
+        sessionToken: string;
+        expiresAt: string;
+        suggestedStep?: string | number;
+        event: PublicEvent;
+        capabilities?: Record<string, boolean>;
+        cart: CartItem[];
+        discountCode?: string | null;
+        buyer?: Buyer | null;
+        buyerVerified?: boolean;
+        purchase?: PurchaseResult["purchase"] | null;
+        payment?: PaymentResult | null;
+        nextAction?: NextAction;
+        shoppingCartReference?: string | null;
+        phase?: string;
+      }>("/v1/checkout/recovery/exchange", {
+        method: "POST",
+        body: params,
+      });
+      session = {
+        sessionId: result.sessionId,
+        sessionToken: result.sessionToken,
+        expiresAt: result.expiresAt,
+        event: result.event,
+        capabilities: result.capabilities || {},
+        shoppingCartReference: result.shoppingCartReference,
+        nextAction: result.nextAction,
+        phase: result.phase,
+      };
+      return result;
+    },
+
     async getSession(): Promise<CheckoutSession> {
       const active = requireSession();
       const result = await transport.request<CheckoutSession>(
@@ -77,6 +128,7 @@ export function createTickean(options: CreateTickeanOptions) {
         ...result,
         sessionToken: active.sessionToken,
         event: result.event || active.event,
+        capabilities: result.capabilities || active.capabilities || {},
       };
       return session;
     },
@@ -95,6 +147,18 @@ export function createTickean(options: CreateTickeanOptions) {
     }): Promise<QuoteResult> {
       const active = requireSession();
       return transport.request("/v1/checkout/quote", {
+        method: "POST",
+        body: params,
+        sessionToken: active.sessionToken,
+      });
+    },
+
+    async lookupBuyer(params: { phone: string }): Promise<{
+      exists: boolean;
+      buyer?: { id: string; phone: string; name?: string; email?: string };
+    }> {
+      const active = requireSession();
+      return transport.request("/v1/checkout/buyer/lookup", {
         method: "POST",
         body: params,
         sessionToken: active.sessionToken,
@@ -133,13 +197,15 @@ export function createTickean(options: CreateTickeanOptions) {
       expectedTotal?: number;
       shoppingCartReference?: string;
       idempotencyKey?: string;
+      attendees?: import("./types").PurchaseAttendee[];
     }): Promise<PurchaseResult> {
       const active = requireSession();
+      const { idempotencyKey, ...body } = params;
       return transport.request("/v1/checkout/purchases", {
         method: "POST",
-        body: params,
+        body,
         sessionToken: active.sessionToken,
-        idempotencyKey: params.idempotencyKey,
+        idempotencyKey,
       });
     },
 
@@ -151,11 +217,12 @@ export function createTickean(options: CreateTickeanOptions) {
       idempotencyKey?: string;
     }): Promise<PaymentResult> {
       const active = requireSession();
+      const { idempotencyKey, ...body } = params;
       return transport.request("/v1/checkout/payments", {
         method: "POST",
-        body: params,
+        body,
         sessionToken: active.sessionToken,
-        idempotencyKey: params.idempotencyKey,
+        idempotencyKey,
       });
     },
 
@@ -166,11 +233,12 @@ export function createTickean(options: CreateTickeanOptions) {
       idempotencyKey?: string;
     }): Promise<PaymentResult> {
       const active = requireSession();
+      const { idempotencyKey, ...body } = params || {};
       return transport.request("/v1/checkout/payments/confirm", {
         method: "POST",
-        body: params || {},
+        body,
         sessionToken: active.sessionToken,
-        idempotencyKey: params?.idempotencyKey,
+        idempotencyKey,
       });
     },
 
@@ -208,9 +276,13 @@ export function createTickean(options: CreateTickeanOptions) {
         ) {
           return status;
         }
+        const nextType = (status.nextAction as NextAction | undefined)?.type;
+        // display_instructions means wait for async transfer confirmation — keep polling.
         if (
           status.nextAction &&
-          (status.nextAction as NextAction).type !== "none" &&
+          nextType &&
+          nextType !== "none" &&
+          nextType !== "display_instructions" &&
           status.requiresAction
         ) {
           return status;

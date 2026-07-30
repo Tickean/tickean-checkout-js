@@ -1,6 +1,6 @@
 {
   "name": "@tickean/checkout-js",
-  "version": "0.2.0",
+  "version": "0.2.11",
   "description": "Tickean Headless Checkout TypeScript client",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -18,9 +18,12 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "build": "tsup",
     "test": "vitest run",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "tsup": "^8.4.0",

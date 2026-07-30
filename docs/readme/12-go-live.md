@@ -22,4 +22,4 @@ Antes de habilitar `pk_live`, validá en sandbox/test:
 | Fintoc | Widget + polling de estado |
 | Mercado Pago | Redirect firmado + return URL + rehidratación |
 
-Instalá siempre versiones publicadas desde npm (`@tickean/checkout-js@0.2.0`, `@tickean/react-checkout@0.2.0`, `@tickean/checkout-elements@0.2.0`).
+Instalá siempre versiones publicadas desde npm (`@tickean/checkout-js@^0.2.11`, `@tickean/checkout-elements@^0.2.22`, y `@tickean/react-checkout` compatible).

@@ -1,6 +1,6 @@
 {
   "name": "@tickean/checkout-elements",
-  "version": "0.2.0",
+  "version": "0.2.22",
   "description": "Tickean Checkout web components (Custom Elements)",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@tickean/checkout-js": "0.2.0"
+    "@tickean/checkout-js": "0.2.11"
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",

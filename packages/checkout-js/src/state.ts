@@ -41,6 +41,10 @@ export type CheckoutAction =
   | { type: "OTP_SENT" }
   | { type: "OTP_VERIFIED"; buyer: Buyer }
   | { type: "SET_EVENT"; event: PublicEvent }
+  | {
+      type: "MERGE_UNLOCKED_OPTIONS";
+      options: import("./types").PublicShowOption[];
+    }
   | { type: "PURCHASE_START" }
   | {
       type: "PURCHASE_SUCCESS";
@@ -50,6 +54,7 @@ export type CheckoutAction =
     }
   | { type: "PURCHASE_FAILURE"; error: TickeanError }
   | { type: "SET_NEXT_ACTION"; nextAction: NextAction; payment?: PaymentResult | null }
+  | { type: "RESET_PAYMENT_FLOW" }
   | { type: "PROCESSING" }
   | { type: "COMPLETED"; purchase?: PurchaseResult["purchase"] | null }
   | { type: "FAILED"; error: TickeanError }
@@ -164,6 +169,31 @@ export function checkoutReducer(
     }
     case "SET_EVENT":
       return { ...state, event: action.event };
+    case "MERGE_UNLOCKED_OPTIONS": {
+      if (!state.event || !action.options.length) return state;
+      const shows = state.event.shows.map((show) => ({
+        ...show,
+        showOptions: [...show.showOptions],
+      }));
+      const byId = new Map<string, (typeof shows)[0]["showOptions"][0]>();
+      for (const show of shows) {
+        for (const opt of show.showOptions) byId.set(opt.id, opt);
+      }
+      for (const unlocked of action.options) {
+        if (byId.has(unlocked.id)) continue;
+        const showId = unlocked.showId;
+        let target = showId ? shows.find((s) => s.id === showId) : undefined;
+        if (!target) target = shows[0];
+        if (!target) continue;
+        const option = { ...unlocked };
+        target.showOptions.push(option);
+        byId.set(option.id, option);
+      }
+      return {
+        ...state,
+        event: { ...state.event, shows },
+      };
+    }
     case "PURCHASE_START":
       return { ...state, phase: "purchasing", error: null };
     case "PURCHASE_SUCCESS": {
@@ -179,8 +209,15 @@ export function checkoutReducer(
         error: null,
       };
     }
-    case "PURCHASE_FAILURE":
-      return { ...state, phase: "failed", error: action.error };
+    case "PURCHASE_FAILURE": {
+      // Keep cart/buyer so the buyer can retry or switch methods.
+      const next = {
+        ...state,
+        error: action.error,
+        phase: "browsing" as CheckoutPhase,
+      };
+      return { ...next, phase: derivePhase(next) };
+    }
     case "SET_NEXT_ACTION":
       return {
         ...state,
@@ -194,6 +231,17 @@ export function checkoutReducer(
               ? "processing"
               : state.phase,
       };
+    case "RESET_PAYMENT_FLOW": {
+      // Allow picking another method after transfer/MP was started.
+      const next = {
+        ...state,
+        payment: null,
+        nextAction: { type: "none" as const },
+        error: null,
+        phase: "browsing" as CheckoutPhase,
+      };
+      return { ...next, phase: derivePhase(next) };
+    }
     case "PROCESSING":
       return { ...state, phase: "processing" };
     case "COMPLETED":
@@ -210,8 +258,10 @@ export function checkoutReducer(
       return { ...state, phase: "expired" };
     case "CLEAR_ERROR":
       return { ...state, error: null };
-    case "REHYDRATE":
-      return { ...state, ...action.partial };
+    case "REHYDRATE": {
+      const next = { ...state, ...action.partial };
+      return { ...next, phase: derivePhase(next) };
+    }
     default:
       return state;
   }

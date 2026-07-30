@@ -129,6 +129,41 @@ export function createDemoTransport(): CheckoutTransport {
         } satisfies CheckoutSession as T;
       }
 
+      if (path === "/v1/checkout/recovery/exchange" && init.method === "POST") {
+        sessionToken = `demo_resume_${Date.now()}`;
+        buyer = {
+          id: "buyer_demo_resume",
+          name: "Demo Resume",
+          email: "resume@demo.tickean",
+          phone: "+5491100000000",
+        };
+        purchaseId = "";
+        lastPayment = null;
+        paymentConfirmed = false;
+        return {
+          sessionId: "sess_demo_resume",
+          sessionToken,
+          expiresAt: new Date(Date.now() + 3600000).toISOString(),
+          suggestedStep: "BUYER",
+          event: publicEvent(),
+          capabilities: {
+            tickets: true,
+            discounts: true,
+            transfer: true,
+            onlinePayments: true,
+          },
+          cart: [{ showOptionId: "opt_day", amount: 1 }],
+          discountCode: null,
+          buyer,
+          buyerVerified: true,
+          purchase: null,
+          payment: null,
+          nextAction: { type: "none" },
+          shoppingCartReference: cartRef,
+          phase: "ready_to_purchase",
+        } as T;
+      }
+
       if (path === "/v1/checkout/session") {
         return {
           sessionId: "sess_demo",
@@ -185,6 +220,22 @@ export function createDemoTransport(): CheckoutTransport {
         } satisfies QuoteResult as T;
       }
 
+      if (path === "/v1/checkout/buyer/lookup" && init.method === "POST") {
+        const body = init.body as { phone: string };
+        // Demo: phones ending in 0000 are new buyers (onboarding).
+        const isNew = String(body.phone || "").replace(/\D/g, "").endsWith("0000");
+        if (isNew) return { exists: false } as T;
+        return {
+          exists: true,
+          buyer: {
+            id: "buyer_demo",
+            phone: body.phone,
+            name: "Demo Buyer",
+            email: "demo@tickean.com",
+          },
+        } as T;
+      }
+
       if (path === "/v1/checkout/otp/send") {
         return { sent: true } as T;
       }
@@ -201,7 +252,7 @@ export function createDemoTransport(): CheckoutTransport {
           name: body.name || "Demo Buyer",
           email: body.email,
         };
-        return { verified: true, buyer } as T;
+        return { verified: true, isNewBuyer: !body.name, buyer } as T;
       }
 
       if (path === "/v1/checkout/purchases") {

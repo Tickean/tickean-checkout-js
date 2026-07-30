@@ -97,6 +97,24 @@ Errores frecuentes al integrar Headless Checkout o Elements, y cómo resolverlos
 2. Confirmá que la dependencia está instalada: `npm ls @tickean/checkout-elements`.
 3. En Next.js, marcá la página con `"use client"` o cargá Elements con `dynamic(..., { ssr: false })`.
 
+## `?resume=` no rehidrata el wizard
+
+**Síntoma:** Abrís el link del mail de abandono y el checkout arranca vacío / en entradas.
+
+**Causas:**
+
+- Elements &lt; **0.2.22** o checkout-js &lt; **0.2.11**.
+- Código expirado, ya canjeado, o de otra organización.
+- Origin del sitio no allowlisteado / publishable key incorrecta.
+- La página del link no monta `<tickean-checkout>` (returnUrl distinta).
+
+**Solución:**
+
+1. Actualizá a `checkout-js@0.2.11` + `checkout-elements@0.2.22`.
+2. Confirmá Network → `POST /v1/checkout/recovery/exchange` (200).
+3. La `return_url` del shortcode debe ser la página donde vive el embed.
+4. Ver [Reanudar sesión](./18-session-resume.md).
+
 ## Modo demo
 
 Para desarrollo sin backend, activá `demo: true` en el client o el atributo `demo` en Web Components. Acepta OTP `123456` y simula transferencias sin credenciales reales.

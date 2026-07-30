@@ -6,7 +6,7 @@ import {
   formatMoney,
   getController,
 } from "./context";
-import { resolveLocale, t } from "./i18n";
+import { resolveLocale, t, tFormat } from "./i18n";
 
 type HostAttrs = {
   getAttribute(name: string): string | null;
@@ -128,4 +128,4 @@ export function readHostControllerId(host: HostAttrs) {
   return host.getAttribute(controllerAttr());
 }
 
-export { t, formatMoney };
+export { t, tFormat, formatMoney };

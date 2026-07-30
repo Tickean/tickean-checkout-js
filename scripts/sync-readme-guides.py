@@ -49,6 +49,7 @@ GUIDES: list[tuple[str, str]] = [
     ("20-browser-support-and-semver", "headless-checkout-browser-semver"),
     ("21-recipes-frameworks", "headless-checkout-recipes-frameworks"),
     ("22-wordpress", "headless-checkout-wordpress"),
+    ("23-wizard-flow", "headless-checkout-wizard-flow"),
 ]
 
 FILE_TO_SLUG = {file: slug for file, slug in GUIDES}

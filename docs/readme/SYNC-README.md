@@ -2,7 +2,7 @@
 
 The Headless Checkout guides and OpenAPI contract sync to ReadMe via API v2 (`branch` **1.0**, category **SDK de Headless Checkout**).
 
-## Guides (00–22)
+## Guides (00–23)
 
 | # | File | ReadMe slug | Topic |
 |---|------|-------------|-------|
@@ -24,11 +24,12 @@ The Headless Checkout guides and OpenAPI contract sync to ReadMe via API v2 (`br
 | 15 | `15-appearance-api.md` | `headless-checkout-appearance-api` | Appearance API |
 | 16 | `16-states-and-next-action.md` | `headless-checkout-states-next-action` | Estados y nextAction |
 | 17 | `17-csp-and-security-headers.md` | `headless-checkout-csp-security-headers` | CSP y security headers |
-| 18 | `18-session-resume.md` | `headless-checkout-session-resume` | Reanudar sesión |
+| 18 | `18-session-resume.md` | `headless-checkout-session-resume` | Reanudar sesión / recovery |
 | 19 | `19-troubleshooting.md` | `headless-checkout-troubleshooting` | Solución de problemas |
 | 20 | `20-browser-support-and-semver.md` | `headless-checkout-browser-semver` | Navegadores y semver 0.x |
 | 21 | `21-recipes-frameworks.md` | `headless-checkout-recipes-frameworks` | Recetas por framework |
 | 22 | `22-wordpress.md` | `headless-checkout-wordpress` | WordPress (Elements / shortcode) |
+| 23 | `23-wizard-flow.md` | `headless-checkout-wizard-flow` | Flujo del wizard (capturas) |
 
 Public docs: https://docs.tickean.com
 
@@ -45,7 +46,7 @@ python3 scripts/sync-readme-guides.py --skip-openapi
 
 The script:
 
-- Upserts guides `00`–`22` into category **SDK de Headless Checkout**
+- Upserts guides `00`–`23` into category **SDK de Headless Checkout**
 - Rewrites local `./NN-….md` links to `/docs/{slug}` and recipe links to GitHub
 - Uploads `tickean-checkout-v1.openapi.json` as `tickean-checkout-v1.json` (rewrites JSON Schema `const` → `enum` for ReadMe’s validator)
 
