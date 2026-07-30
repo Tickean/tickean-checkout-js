@@ -125,6 +125,17 @@ Importá el side-effect en el componente raíz o en `+layout.svelte`.
 
 Snippet extendido: [`examples/recipes/svelte.md`](../../examples/recipes/svelte.md).
 
+## WordPress
+
+Sin React: cargá el módulo ESM y montá `<tickean-checkout>` con un bloque HTML o el shortcode `[tickean_checkout]`.
+
+```
+[tickean_checkout event_slug="demo-festival" locale="es-AR" appearance="flat"]
+```
+
+Guía completa: [WordPress + Tickean Elements](./22-wordpress.md).  
+Snippet PHP: [`examples/recipes/wordpress.md`](../../examples/recipes/wordpress.md).
+
 ## Headless en cualquier framework
 
 Si preferís UI propia, usá solo `@tickean/checkout-js` o los hooks de `@tickean/react-checkout` sin Elements. Ver [Inicio rápido React](./02-quickstart-react.md).

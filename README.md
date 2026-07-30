@@ -72,9 +72,10 @@ Guías en [`docs/readme/`](./docs/readme/) (español, estilo ReadMe):
 | [19-troubleshooting](./docs/readme/19-troubleshooting.md) | CORS, OTP, idempotencia |
 | [20-browser-support-and-semver](./docs/readme/20-browser-support-and-semver.md) | Navegadores y semver 0.x |
 | [21-recipes-frameworks](./docs/readme/21-recipes-frameworks.md) | Next, Vite, Vue, Svelte |
+| [22-wordpress](./docs/readme/22-wordpress.md) | WordPress (HTML / shortcode) |
 
 OpenAPI v1.1: [`docs/readme/tickean-checkout-v1.openapi.json`](./docs/readme/tickean-checkout-v1.openapi.json)
 
 ## Release status
 
-OpenAPI v1.1 y guías `00`–`21` están listas localmente. Publicación npm: `npx changeset publish` cuando el scope `@tickean` esté listo.
+OpenAPI v1.1 y guías `00`–`22` están listas localmente. Publicación npm: `npx changeset publish` cuando el scope `@tickean` esté listo.

@@ -42,4 +42,4 @@ Empezá por la guía [Elements quickstart](./14-elements-quickstart.md) o por [I
 
 ## Estado de publicación
 
-Guías `00`–`21` y el contrato OpenAPI **v1.1** (Elements) están publicados localmente. Sincronizá ReadMe tras cambios — ver [`SYNC-README.md`](./SYNC-README.md).
+Guías `00`–`22` y el contrato OpenAPI **v1.1** (Elements) están publicados localmente. Sincronizá ReadMe tras cambios — ver [`SYNC-README.md`](./SYNC-README.md). Para WordPress (sin React), ver [WordPress + Tickean Elements](./22-wordpress.md).
