@@ -88,13 +88,13 @@ Errores frecuentes al integrar Headless Checkout o Elements, y cómo resolverlos
 **Causas:**
 
 - No importaste `@tickean/checkout-elements` (define los custom elements).
-- Build desactualizado (`dist/` vacío).
+- Dependencia no instalada o versión incorrecta.
 - SSR: los Web Components solo corren en el cliente.
 
 **Solución:**
 
-1. `import "@tickean/checkout-elements"` antes de usar los tags.
-2. `npm run build -w @tickean/checkout-elements`.
+1. `import "@tickean/checkout-elements"` (o el wrapper de `@tickean/react-checkout`) antes de usar los tags.
+2. Confirmá que la dependencia está instalada: `npm ls @tickean/checkout-elements`.
 3. En Next.js, marcá la página con `"use client"` o cargá Elements con `dynamic(..., { ssr: false })`.
 
 ## Modo demo

@@ -51,4 +51,4 @@ export default function Page() {
 
 ## Playground
 
-Abrí `examples/playground/index.html` después de `npm run build -w @tickean/checkout-elements`.
+El repo incluye `examples/playground` para explorar Appearance y locale. En tu app, instalá desde npm e importá `@tickean/checkout-elements` o `@tickean/react-checkout`.

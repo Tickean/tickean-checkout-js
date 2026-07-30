@@ -1,10 +1,10 @@
 # WordPress + Tickean Elements
 
-Integrá el checkout white-label de Tickean en WordPress con **Web Components** (`<tickean-checkout>`). No hace falta React ni un plugin de marketplace: alcanza un bloque HTML o un shortcode.
+Integrá el checkout white-label de Tickean en WordPress con Web Components (`<tickean-checkout>`). No requiere React ni un plugin de marketplace: un bloque HTML o un shortcode es suficiente.
 
 ## Requisitos
 
-1. Entitlement **Custom Checkout** habilitado en la organización.
+1. Entitlement **Custom Checkout** habilitado en la organización (Dashboard Tickean).
 2. Clave publicable `pk_test_…` (pruebas) o `pk_live_…` (producción).
 3. Origen exacto del sitio en el allowlist (Dashboard → Headless Checkout), por ejemplo:
    - `https://tusitio.com`
@@ -15,9 +15,9 @@ Ver [Claves y dominios](./03-keys-and-domains.md).
 
 ## Cómo cargar el SDK
 
-Tickean Elements es un módulo ESM. En WordPress podés cargarlo de dos formas:
+Tickean Elements se publica en npm como ESM. En WordPress, la vía recomendada es **CDN** (jsDelivr) con un `importmap`.
 
-### A) CDN (cuando `@tickean` esté publicado en npm)
+### CDN (recomendado)
 
 ```html
 <script type="importmap">
@@ -33,15 +33,17 @@ Tickean Elements es un módulo ESM. En WordPress podés cargarlo de dos formas:
 </script>
 ```
 
-### B) Self-host (recomendado hoy)
+Fijá la versión (`@0.2.0`) en producción. Podés usar `unpkg.com` con la misma ruta de paquete.
 
-1. Compilá los paquetes (`npm run build` en el monorepo) o descargá los `dist/`.
-2. Subí `checkout-js/dist/index.mjs` y `checkout-elements/dist/index.mjs` a:
-   - `/wp-content/uploads/tickean/`, o
-   - `assets/tickean/` de tu tema hijo.
-3. Apuntá el `importmap` a esas URLs absolutas HTTPS.
+### Self-host (opcional)
 
-> No uses un `<script src>` clásico sin `type="module"`: el bundle es ESM.
+Si preferís no depender de un CDN:
+
+1. `npm pack @tickean/checkout-js@0.2.0 @tickean/checkout-elements@0.2.0` (o instalá los paquetes y tomá `node_modules/@tickean/*/dist/index.mjs`).
+2. Subí los `.mjs` a `/wp-content/uploads/tickean/` o a los assets del tema.
+3. Apuntá el `importmap` a esas URLs HTTPS absolutas.
+
+El bundle es ESM: usá siempre `type="module"` (o `type="importmap"` + module).
 
 ## Opción 1 — Bloque HTML personalizado
 
@@ -51,8 +53,8 @@ En Gutenberg: **+ → HTML personalizado**. Pegá:
 <script type="importmap">
 {
   "imports": {
-    "@tickean/checkout-js": "https://tusitio.com/wp-content/uploads/tickean/checkout-js.mjs",
-    "@tickean/checkout-elements": "https://tusitio.com/wp-content/uploads/tickean/checkout-elements.mjs"
+    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.0/dist/index.mjs",
+    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.0/dist/index.mjs"
   }
 }
 </script>
@@ -71,7 +73,7 @@ En Gutenberg: **+ → HTML personalizado**. Pegá:
 ></tickean-checkout>
 ```
 
-Reemplazá la clave, el slug y las URLs de los `.mjs`. En producción usá `pk_live_…` y el origen HTTPS del sitio.
+Reemplazá la clave y el slug. En producción usá `pk_live_…` y el origen HTTPS del sitio.
 
 ## Opción 2 — Shortcode `[tickean_checkout]`
 
@@ -109,10 +111,8 @@ define('TICKEAN_PUBLISHABLE_KEY', 'pk_test_...');
 ## Appearance y locale
 
 - Temas: `default`, `flat`, `night`, `none`.
-- Variables CSS: ver [Appearance API](./15-appearance-api.md).
-- Locales soportados: `es-AR`, `es-CL`, `en`.
-
-Ejemplo con JSON en el shortcode (escapá comillas en el atributo o usá un tema simple):
+- Variables CSS: [Appearance API](./15-appearance-api.md).
+- Locales: `es-AR`, `es-CL`, `en`.
 
 ```
 [tickean_checkout event_slug="mi-evento" appearance="flat" locale="es-CL"]
@@ -120,16 +120,14 @@ Ejemplo con JSON en el shortcode (escapá comillas en el atributo o usá un tema
 
 ## Eventos DOM
 
-Podés escuchar el elemento desde un script del tema:
-
 ```js
 document.addEventListener("DOMContentLoaded", () => {
   const el = document.querySelector("tickean-checkout");
   if (!el) return;
-  el.addEventListener("ready", () => console.log("Tickean listo"));
-  el.addEventListener("change", (e) => console.log(e.detail?.state?.phase));
-  el.addEventListener("complete", () => console.log("Compra completa"));
-  el.addEventListener("error", (e) => console.error(e.detail));
+  el.addEventListener("ready", () => {/* checkout listo */});
+  el.addEventListener("change", (e) => {/* e.detail.state.phase */});
+  el.addEventListener("complete", () => {/* compra completa */});
+  el.addEventListener("error", (e) => {/* e.detail */});
 });
 ```
 
@@ -147,18 +145,18 @@ Ver [Pagos y retornos](./07-payments-returns.md) y [Reanudar sesión](./18-sessi
 
 ### Content Security Policy
 
-Si tu hosting o un plugin de seguridad envía CSP, permití la API y los PSPs que uses. Guía completa: [CSP](./17-csp-and-security-headers.md).
+Si tu hosting o un plugin de seguridad envía CSP, permití la API y los PSPs que uses. Guía: [CSP](./17-csp-and-security-headers.md).
 
-Mínimo para Tickean:
+Mínimo para Tickean con CDN:
 
 ```
 connect-src https://api.tickean.com;
-script-src 'self' https://cdn.jsdelivr.net; /* si usás CDN */
+script-src 'self' https://cdn.jsdelivr.net;
 ```
 
 ### WP Rocket / LiteSpeed / Autoptimize
 
-- Excluí los `.mjs` de Tickean de **minificación** y **defer/combine** agresivos.
+- Excluí los módulos ESM de Tickean de minificación y defer/combine agresivos.
 - No combines el `importmap` con otros scripts.
 - Si el checkout no aparece tras activar caché, purgá y probá en ventana privada.
 
@@ -166,7 +164,7 @@ script-src 'self' https://cdn.jsdelivr.net; /* si usás CDN */
 
 - Preferí un shortcode en un widget HTML / Shortcode.
 - Evitá anidar el checkout dentro de iframes del builder.
-- Asegurate de que el script `type="module"` se imprima en el front (no solo en el preview del editor).
+- Confirmá que el script `type="module"` se imprima en el front (no solo en el preview del editor).
 
 ## Checklist go-live
 
@@ -174,7 +172,7 @@ script-src 'self' https://cdn.jsdelivr.net; /* si usás CDN */
 2. `pk_live_…` solo en producción (nunca en repos públicos).
 3. Compra de prueba completa: catálogo → OTP → pago → retorno / instrucciones.
 4. CSP y plugins de caché validados.
-5. Webhooks configurados si el partner los necesita ([Webhooks](./08-webhooks.md)).
+5. Webhooks configurados si tu integración los requiere ([Webhooks](./08-webhooks.md)).
 
 ## Troubleshooting
 
@@ -182,13 +180,13 @@ script-src 'self' https://cdn.jsdelivr.net; /* si usás CDN */
 |---------|-------------|
 | El shortcode se ve como texto | El snippet PHP no está cargado (tema hijo / mu-plugin). |
 | Consola: CORS / origin not allowed | Dominio exacto en Dashboard (con `https://`, sin path). |
-| Consola: failed to resolve module | URLs del `importmap` o self-host incorrectas. |
-| Checkout vacío | Clave inválida, entitlement off, o `event_slug` mal escrito. |
+| Consola: failed to resolve module | URLs del `importmap` o versión de paquete incorrecta. |
+| Checkout vacío | Clave inválida, entitlement deshabilitado, o `event_slug` incorrecto. |
 | Funciona en local y no en prod | Caché, CSP, o `pk_test` contra dominio live. |
-| OTP / quote falla | Ver [Troubleshooting general](./19-troubleshooting.md). |
+| OTP / quote falla | [Troubleshooting general](./19-troubleshooting.md). |
 
 ## Siguiente paso
 
 Snippet PHP completo: [`examples/recipes/wordpress.md`](../../examples/recipes/wordpress.md).
 
-Para otros stacks: [Recetas por framework](./21-recipes-frameworks.md).
+Otros stacks: [Recetas por framework](./21-recipes-frameworks.md).

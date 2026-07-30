@@ -4,25 +4,7 @@ Snippet copy-paste para montar `<tickean-checkout>` con el shortcode `[tickean_c
 
 Guía completa: [`docs/readme/22-wordpress.md`](../../docs/readme/22-wordpress.md).
 
-## 1. Subí los bundles ESM
-
-Desde el monorepo Tickean (o cuando los paquetes estén en npm):
-
-```bash
-npm run build -w @tickean/checkout-js
-npm run build -w @tickean/checkout-elements
-```
-
-Copiá a WordPress, por ejemplo:
-
-```
-wp-content/uploads/tickean/checkout-js.mjs          ← packages/checkout-js/dist/index.mjs
-wp-content/uploads/tickean/checkout-elements.mjs    ← packages/checkout-elements/dist/index.mjs
-```
-
-Ajustá las constantes `TICKEAN_*_URL` del snippet si usás otra ruta o CDN.
-
-## 2. Definí la clave publicable
+## 1. Definí la clave publicable
 
 En `wp-config.php` (antes de `That's all, stop editing!`):
 
@@ -30,9 +12,11 @@ En `wp-config.php` (antes de `That's all, stop editing!`):
 define('TICKEAN_PUBLISHABLE_KEY', 'pk_test_...');
 ```
 
-## 3. Pegá el mu-plugin
+## 2. Pegá el mu-plugin
 
-Creá `wp-content/mu-plugins/tickean-checkout.php` (o agregalo al `functions.php` del tema hijo):
+Creá `wp-content/mu-plugins/tickean-checkout.php` (o agregalo al `functions.php` del tema hijo).
+
+Por defecto carga los bundles desde **jsDelivr** (`@tickean/checkout-js` y `@tickean/checkout-elements` **0.2.0**). Podés overridear las URLs con constantes si preferís self-host.
 
 ```php
 <?php
@@ -46,10 +30,16 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('TICKEAN_CHECKOUT_JS_URL')) {
-  define('TICKEAN_CHECKOUT_JS_URL', content_url('uploads/tickean/checkout-js.mjs'));
+  define(
+    'TICKEAN_CHECKOUT_JS_URL',
+    'https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.0/dist/index.mjs'
+  );
 }
 if (!defined('TICKEAN_CHECKOUT_ELEMENTS_URL')) {
-  define('TICKEAN_CHECKOUT_ELEMENTS_URL', content_url('uploads/tickean/checkout-elements.mjs'));
+  define(
+    'TICKEAN_CHECKOUT_ELEMENTS_URL',
+    'https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.0/dist/index.mjs'
+  );
 }
 
 /**
@@ -69,14 +59,10 @@ function tickean_checkout_shortcode($atts) {
     'return_url' => '',
   ], $atts, 'tickean_checkout');
 
-  if ($a['event_slug'] === '') {
-    return '<!-- tickean_checkout: falta event_slug -->';
-  }
-  if ($a['publishable_key'] === '') {
-    return '<!-- tickean_checkout: falta publishable_key / TICKEAN_PUBLISHABLE_KEY -->';
+  if ($a['event_slug'] === '' || $a['publishable_key'] === '') {
+    return '';
   }
 
-  // Encola el módulo ESM una sola vez por request.
   static $assets_printed = false;
   if (!$assets_printed) {
     $assets_printed = true;
@@ -108,10 +94,9 @@ function tickean_checkout_shortcode($atts) {
 add_shortcode('tickean_checkout', 'tickean_checkout_shortcode');
 
 /**
- * Imprime importmap + type=module en el footer (más fiable que wp_enqueue_script para ESM).
+ * Imprime importmap + type=module en el footer.
  */
 function tickean_checkout_print_module_assets() {
-  $js_url = esc_url(TICKEAN_CHECKOUT_JS_URL);
   $el_url = esc_url(TICKEAN_CHECKOUT_ELEMENTS_URL);
   $map = wp_json_encode([
     'imports' => [
@@ -126,9 +111,18 @@ function tickean_checkout_print_module_assets() {
 }
 ```
 
-> Si el shortcode se renderiza en un widget o page builder y el custom element aparece vacío, confirmá que `wp_footer` corre en esa plantilla. Alternativa: [bloque HTML personalizado](../../docs/readme/22-wordpress.md#opción-1--bloque-html-personalizado).
+Si el shortcode se renderiza en un widget o page builder y el custom element aparece vacío, confirmá que `wp_footer` corre en esa plantilla. Alternativa: [bloque HTML personalizado](../../docs/readme/22-wordpress.md#opción-1--bloque-html-personalizado).
 
-## 4. Usalo en una página
+### Self-host (opcional)
+
+```php
+define('TICKEAN_CHECKOUT_JS_URL', content_url('uploads/tickean/checkout-js.mjs'));
+define('TICKEAN_CHECKOUT_ELEMENTS_URL', content_url('uploads/tickean/checkout-elements.mjs'));
+```
+
+Obtené los archivos desde `node_modules/@tickean/*/dist/index.mjs` tras `npm install @tickean/checkout-js@0.2.0 @tickean/checkout-elements@0.2.0`.
+
+## 3. Usalo en una página
 
 ```
 [tickean_checkout event_slug="demo-festival" locale="es-AR" appearance="flat"]
@@ -140,19 +134,13 @@ Con retorno explícito:
 [tickean_checkout event_slug="demo-festival" return_url="https://tusitio.com/checkout/retorno/"]
 ```
 
-Override puntual de la clave (solo si no usás la constante):
-
-```
-[tickean_checkout event_slug="demo-festival" publishable_key="pk_test_..."]
-```
-
 ## Variante HTML (sin shortcode)
 
-Si preferís no tocar PHP, usá el bloque HTML personalizado de la [guía 22](../../docs/readme/22-wordpress.md).
+Bloque HTML personalizado: [guía 22](../../docs/readme/22-wordpress.md).
 
-## Variante composable (avanzado)
+## Variante composable
 
-Para layouts propios, montá tags sueltos en el HTML del tema (después de cargar el módulo):
+Para layouts propios (después de cargar el módulo):
 
 ```html
 <script type="module">
@@ -165,12 +153,12 @@ Para layouts propios, montá tags sueltos en el HTML del tema (después de carga
 <tickean-payment payment-method="TRANSFER" currency="ARS"></tickean-payment>
 ```
 
-En producción, preferí un solo `<tickean-checkout>` (comparte controller y estado). Ver [Elements quickstart](../../docs/readme/14-elements-quickstart.md).
+En producción preferí un solo `<tickean-checkout>` (comparte controller y estado). Ver [Elements quickstart](../../docs/readme/14-elements-quickstart.md).
 
-## Checklist rápido
+## Checklist
 
 1. Dominio allowlisteado en Dashboard.
-2. Bundles `.mjs` accesibles por HTTPS.
+2. Bundles ESM accesibles por HTTPS (CDN o self-host).
 3. `TICKEAN_PUBLISHABLE_KEY` definida.
 4. Shortcode con `event_slug` válido.
-5. Excluí los `.mjs` de minificación/combine en plugins de caché.
+5. Excluí los módulos ESM de minificación/combine en plugins de caché.

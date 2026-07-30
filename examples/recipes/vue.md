@@ -1,14 +1,12 @@
 # Vue 3 — Tickean Elements
 
-Copiá y pegá. Requiere `@tickean/checkout-elements` instalado y buildeado.
+Copiá y pegá.
 
 ## Instalación
 
 ```bash
 npm install @tickean/checkout-js @tickean/checkout-elements
 ```
-
-Desde el monorepo local: `npm run build -w @tickean/checkout-elements`.
 
 ## Checkout completo
 

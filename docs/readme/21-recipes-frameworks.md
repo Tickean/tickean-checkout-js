@@ -142,7 +142,7 @@ Si preferís UI propia, usá solo `@tickean/checkout-js` o los hooks de `@tickea
 
 ## Checklist común
 
-1. Build de packages: `npm run build` desde el monorepo o instalá desde npm.
+1. Instalá desde npm: `npm install @tickean/checkout-js @tickean/checkout-elements` (y `@tickean/react-checkout` si usás React).
 2. Clave publicable + origen autorizado en Dashboard.
-3. CSP actualizada si usás PSP con widgets (guía 17).
+3. CSP actualizada si usás PSP con widgets ([guía 17](./17-csp-and-security-headers.md)).
 4. `"use client"` / `onMount` / sin SSR para custom elements.

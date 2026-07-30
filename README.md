@@ -78,4 +78,10 @@ OpenAPI v1.1: [`docs/readme/tickean-checkout-v1.openapi.json`](./docs/readme/tic
 
 ## Release status
 
-OpenAPI v1.1 y guías `00`–`22` están listas localmente. Publicación npm: `npx changeset publish` cuando el scope `@tickean` esté listo.
+Paquetes publicados en npm (`0.2.0`):
+
+```bash
+npm install @tickean/checkout-js @tickean/react-checkout @tickean/checkout-elements
+```
+
+Documentación pública: [docs.tickean.com](https://docs.tickean.com) (categoría SDK de Headless Checkout).
