@@ -191,11 +191,39 @@ export type CartItem = {
   amount: number;
 };
 
+export type QuotePricingLine = {
+  showOptionId?: string;
+  quantity?: number;
+  baseUnitPrice?: number;
+  lineTotal?: number;
+  codeDiscountAmount?: number;
+  codeDiscountedUnits?: number;
+};
+
+export type QuotePricingBreakdown = {
+  subtotalBase?: number;
+  promotionDiscountTotal?: number;
+  codeDiscountTotal?: number;
+  serviceCharge?: number;
+  total?: number;
+  lines?: QuotePricingLine[];
+};
+
+export type QuoteDiscountCode = {
+  code?: string;
+  discountType?: "PERCENT" | "FIXED" | string;
+  value?: number;
+  amountApplied?: number;
+  benefitKind?: string;
+  allowedShowOptionIds?: string[];
+  applicationMode?: string;
+};
+
 export type QuoteResult = {
   valid: boolean;
   totalPrice: number;
-  pricingBreakdown?: unknown;
-  discountCode?: unknown;
+  pricingBreakdown?: QuotePricingBreakdown | unknown;
+  discountCode?: QuoteDiscountCode | unknown;
   message?: string;
   unlockedShowOptionIds?: string[];
   unlockedShowOptions?: PublicShowOption[];

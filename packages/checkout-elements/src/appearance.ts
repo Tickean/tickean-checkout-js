@@ -202,6 +202,20 @@ export const baseStyles = `
   color: var(--tickean-primary, #16a34a);
   font-weight: 550;
 }
+.ticket-price {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+}
+.ticket-price-was {
+  font-size: 0.72rem;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+.ticket-price-now {
+  font-weight: 700;
+  color: var(--tickean-primary, #16a34a);
+}
 .stock-badge {
   display: inline-flex;
   align-items: center;

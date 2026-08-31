@@ -1,6 +1,6 @@
 {
   "name": "@tickean/checkout-js",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "Tickean Headless Checkout TypeScript client",
   "license": "MIT",
   "main": "./dist/index.js",

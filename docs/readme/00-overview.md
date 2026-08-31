@@ -8,13 +8,11 @@ Tickean Headless Checkout permite que los socios vendan entradas con una interfa
 
 ## Cómo se ve el wizard
 
-Con Elements (`layout="steps"`) el comprador recorre entradas → datos → OTP → pago:
+Con Elements (`layout="steps"`) el comprador recorre entradas → datos → OTP → pago. Podés probarlo acá en modo mock (OTP `123456`):
 
-![Paso Entradas](https://d1eg24w7igwib6.cloudfront.net/1.wizard.png)
+<iframe src="https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html?embed=1" title="Tickean Elements wizard demo" width="100%" height="640" loading="lazy" style="border:1px solid #e2e8f0;border-radius:12px;background:#fff"></iframe>
 
-![Selección de método de pago](https://d1eg24w7igwib6.cloudfront.net/4.wizar_select_payment.png)
-
-Recorrido completo con capturas: [Flujo del wizard](./23-wizard-flow.md).
+[Abrir demo en pantalla completa](https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html) · Recorrido con capturas: [Flujo del wizard](./23-wizard-flow.md).
 
 ## Arquitectura
 
@@ -35,10 +33,10 @@ Las sesiones son de corta duración, están vinculadas al origen y usan una clav
 | `@tickean/react-checkout` | `TickeanProvider`, hooks headless y wrappers React sobre los WC |
 
 ```bash
-npm install @tickean/checkout-js@^0.2.11 @tickean/checkout-elements@^0.2.22 @tickean/react-checkout
+npm install @tickean/checkout-js@^0.2.12 @tickean/checkout-elements@^0.2.23 @tickean/react-checkout
 ```
 
-Versiones actuales en npm (Elements / recovery): **checkout-js 0.2.11**, **checkout-elements 0.2.22**. React wrappers: ver versión publicada de `@tickean/react-checkout` (peer de los anteriores).
+Versiones actuales en npm (Elements / recovery): **checkout-js 0.2.12**, **checkout-elements 0.2.23**. React wrappers: ver versión publicada de `@tickean/react-checkout` (peer de los anteriores).
 
 ## Tres niveles de integración
 

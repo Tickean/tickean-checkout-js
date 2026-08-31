@@ -133,7 +133,7 @@ Sin React: cargá el módulo ESM y montá `<tickean-checkout>` con un bloque HTM
 [tickean_checkout event_slug="demo-festival" locale="es-AR" appearance="flat"]
 ```
 
-Usá **checkout-js ≥ 0.2.11** y **elements ≥ 0.2.22** (wizard + recovery `?resume=`).
+Usá **checkout-js ≥ 0.2.12** y **elements ≥ 0.2.23** (wizard + recovery `?resume=`).
 
 Guía completa: [WordPress + Tickean Elements](./22-wordpress.md).  
 Capturas: [Flujo del wizard](./23-wizard-flow.md).  

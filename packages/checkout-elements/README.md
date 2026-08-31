@@ -2,7 +2,7 @@
 
 Tickean Checkout web components with Shadow DOM, appearance themes, wizard steps, and i18n.
 
-Requires **`@tickean/checkout-js` ≥ 0.2.11**. Current package version: **0.2.22**.
+Requires **`@tickean/checkout-js` ≥ 0.2.12**. Current package version: **0.2.23**.
 
 ```html
 <script type="module">

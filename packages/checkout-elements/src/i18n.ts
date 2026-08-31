@@ -64,6 +64,7 @@ type Messages = {
   unlocked: string;
   promoCodeHint: string;
   promoUnlockHint: string;
+  ticketsCodeHint: string;
   discountCodeHint: string;
   promoUnlockPlaceholder: string;
   promoUnlockSuccess: string;
@@ -167,6 +168,8 @@ const catalogs: Record<Locale, Messages> = {
     promoCodeHint: "¿Tenés un código? Ingresalo arriba para desbloquear entradas ocultas.",
     promoUnlockHint:
       "Ingresalo antes de elegir entradas para desbloquear opciones exclusivas.",
+    ticketsCodeHint:
+      "Ingresalo acá para aplicar un descuento o desbloquear entradas exclusivas.",
     discountCodeHint: "Ingresalo acá para aplicar el descuento a tu compra.",
     promoUnlockPlaceholder: "Ej: ARTISTAS",
     promoUnlockSuccess: "Código válido. Se revelaron entradas exclusivas.",
@@ -271,6 +274,8 @@ const catalogs: Record<Locale, Messages> = {
     promoCodeHint: "¿Tienes un código? Ingrésalo arriba para desbloquear entradas ocultas.",
     promoUnlockHint:
       "Ingrésalo antes de elegir entradas para desbloquear opciones exclusivas.",
+    ticketsCodeHint:
+      "Ingrésalo acá para aplicar un descuento o desbloquear entradas exclusivas.",
     discountCodeHint: "Ingrésalo acá para aplicar el descuento a tu compra.",
     promoUnlockPlaceholder: "Ej: ARTISTAS",
     promoUnlockSuccess: "Código válido. Se revelaron entradas exclusivas.",
@@ -375,6 +380,8 @@ const catalogs: Record<Locale, Messages> = {
     promoCodeHint: "Have a code? Enter it above to unlock hidden tickets.",
     promoUnlockHint:
       "Enter it before choosing tickets to unlock exclusive options.",
+    ticketsCodeHint:
+      "Enter it here to apply a discount or unlock exclusive tickets.",
     discountCodeHint: "Enter it here to apply the discount to your purchase.",
     promoUnlockPlaceholder: "E.g. ARTISTAS",
     promoUnlockSuccess: "Valid code. Exclusive tickets were revealed.",

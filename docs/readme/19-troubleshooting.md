@@ -103,14 +103,14 @@ Errores frecuentes al integrar Headless Checkout o Elements, y cómo resolverlos
 
 **Causas:**
 
-- Elements &lt; **0.2.22** o checkout-js &lt; **0.2.11**.
+- Elements &lt; **0.2.23** o checkout-js &lt; **0.2.12**.
 - Código expirado, ya canjeado, o de otra organización.
 - Origin del sitio no allowlisteado / publishable key incorrecta.
 - La página del link no monta `<tickean-checkout>` (returnUrl distinta).
 
 **Solución:**
 
-1. Actualizá a `checkout-js@0.2.11` + `checkout-elements@0.2.22`.
+1. Actualizá a `checkout-js@0.2.12` + `checkout-elements@0.2.23`.
 2. Confirmá Network → `POST /v1/checkout/recovery/exchange` (200).
 3. La `return_url` del shortcode debe ser la página donde vive el embed.
 4. Ver [Reanudar sesión](./18-session-resume.md).

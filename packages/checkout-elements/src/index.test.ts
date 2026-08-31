@@ -100,8 +100,13 @@ describe("@tickean/checkout-elements", () => {
     expect(
       root.querySelector('[data-panel="buyer"]')?.hasAttribute("hidden"),
     ).toBe(false);
-    // Discount lives in the summary aside, not under the ticket list.
-    expect(root.querySelector("[data-aside] tickean-discount")).toBeTruthy();
+    // Discount input on tickets (unlock/early) and buyer (price-off) steps.
+    expect(
+      root.querySelector('[data-panel="tickets"] tickean-discount'),
+    ).toBeTruthy();
+    expect(
+      root.querySelector('[data-panel="buyer"] tickean-discount'),
+    ).toBeTruthy();
 
     el.remove();
   });

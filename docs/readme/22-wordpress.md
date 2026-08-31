@@ -6,11 +6,11 @@ Integrá el checkout white-label de Tickean en WordPress con Web Components (`<t
 
 ## Vista previa
 
-![Entradas](https://d1eg24w7igwib6.cloudfront.net/1.wizard.png)
+Mock interactivo (igual al shortcode, en modo `demo`; OTP `123456`):
 
-![Pago / transferencia](https://d1eg24w7igwib6.cloudfront.net/6.wizard_transfers_details.png)
+<iframe src="https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html?embed=1" title="Tickean Elements wizard demo" width="100%" height="640" loading="lazy" style="border:1px solid #e2e8f0;border-radius:12px;background:#fff"></iframe>
 
-Guía ilustrada: [Flujo del wizard](./23-wizard-flow.md).
+[Abrir demo](https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html) · Guía ilustrada: [Flujo del wizard](./23-wizard-flow.md).
 
 ## Requisitos
 
@@ -27,7 +27,7 @@ Ver [Claves y dominios](./03-keys-and-domains.md).
 
 Tickean Elements se publica en npm como ESM. En WordPress, la vía recomendada es **CDN** (jsDelivr).
 
-Usá **checkout-js ≥ 0.2.11** y **Elements ≥ 0.2.22** (wizard + recovery `?resume=`).
+Usá **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.23** (wizard + recovery `?resume=`).
 
 ### WordPress 6.5+ (recomendado)
 
@@ -43,8 +43,8 @@ Solo si no usás script modules de WP (o un tema muy viejo):
 <script type="importmap">
 {
   "imports": {
-    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.11/dist/index.mjs",
-    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.22/dist/index.mjs"
+    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.12/dist/index.mjs",
+    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.23/dist/index.mjs"
   }
 }
 </script>
@@ -57,7 +57,7 @@ Fijá la versión en producción. Podés usar `unpkg.com` con la misma ruta de p
 
 ### Self-host (opcional)
 
-1. `npm install @tickean/checkout-js@0.2.11 @tickean/checkout-elements@0.2.22` y tomá `node_modules/@tickean/*/dist/index.mjs`.
+1. `npm install @tickean/checkout-js@0.2.12 @tickean/checkout-elements@0.2.23` y tomá `node_modules/@tickean/*/dist/index.mjs`.
 2. Subí los `.mjs` a `/wp-content/uploads/tickean/` o a los assets del tema.
 3. Apuntá el importmap / `wp_register_script_module` a esas URLs HTTPS absolutas.
 
@@ -69,8 +69,8 @@ En Gutenberg: **+ → HTML personalizado**. Pegá:
 <script type="importmap">
 {
   "imports": {
-    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.11/dist/index.mjs",
-    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.22/dist/index.mjs"
+    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.12/dist/index.mjs",
+    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.23/dist/index.mjs"
   }
 }
 </script>
@@ -148,7 +148,7 @@ Si alguien deja el wizard a medias (entradas + teléfono verificado, pago no com
 https://tusitio.com/tu-pagina/?resume=CODE
 ```
 
-El shortcode ya setea `return-url` a la URL actual. Elements (≥ 0.2.22) lee `?resume=`, rehidrata carrito/buyer/purchase y salta al paso correcto.
+El shortcode ya setea `return-url` a la URL actual. Elements (≥ 0.2.23) lee `?resume=`, rehidrata carrito/buyer/purchase y salta al paso correcto.
 
 Detalle: [Reanudar sesión](./18-session-resume.md).
 
@@ -217,7 +217,7 @@ script-src 'self' https://cdn.jsdelivr.net;
 1. Origen HTTPS exacto en el allowlist.
 2. `pk_live_…` solo en producción (nunca en repos públicos).
 3. Compra de prueba completa: entradas → OTP → pago → retorno / instrucciones.
-4. **checkout-js ≥ 0.2.11** y **Elements ≥ 0.2.22**.
+4. **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.23**.
 5. Probar un link `?resume=` de recovery (abandonar tras OTP y esperar el mail/SMS, o usar un code de prueba interno).
 6. CSP y plugins de caché validados.
 7. Webhooks configurados si tu integración los requiere ([Webhooks](./08-webhooks.md)).
@@ -231,7 +231,7 @@ script-src 'self' https://cdn.jsdelivr.net;
 | Consola: failed to resolve module | URLs del importmap / script modules, o segundo importmap ignorado. |
 | Se queda en “Cargando checkout…” | Elements &lt; 0.2.1, o clave/event/entitlement inválidos. |
 | Checkout vacío | Clave inválida, entitlement deshabilitado, o `event_slug` incorrecto. |
-| `?resume=` no rehidrata | Elements &lt; 0.2.22, code expirado/usado, o origin no allowlisteado. |
+| `?resume=` no rehidrata | Elements &lt; 0.2.23, code expirado/usado, o origin no allowlisteado. |
 | Funciona en local y no en prod | Caché, CSP, o `pk_test` contra dominio live. |
 | OTP / quote falla | [Troubleshooting general](./19-troubleshooting.md). |
 

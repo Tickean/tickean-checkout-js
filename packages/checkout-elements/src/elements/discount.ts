@@ -17,16 +17,18 @@ function countUnlockedOptions(state: {
   return n;
 }
 
-/** Promo unlock for hidden lots (tickets step). */
+/** Promo unlock / early discount entry on the tickets step. */
 export function shouldShowPromoCodeUnlock(params: {
   hasPromoGatedShowOptions?: boolean;
   unlockedCount?: number;
   discountCode?: string | null;
+  discountsEnabled?: boolean;
 }): boolean {
   return (
     Boolean(params.hasPromoGatedShowOptions) ||
     (params.unlockedCount ?? 0) > 0 ||
-    Boolean(params.discountCode)
+    Boolean(params.discountCode) ||
+    params.discountsEnabled === true
   );
 }
 
@@ -57,10 +59,16 @@ export class TickeanDiscount extends TickeanElementBase {
     const mode = this.mode();
     const unlockedCount = countUnlockedOptions(state);
     const discountsEnabled = state.session?.capabilities?.discounts;
+    const hasGated = Boolean(state.event?.hasPromoGatedShowOptions);
 
     const visible =
       mode === "unlock"
-        ? Boolean(state.event?.hasPromoGatedShowOptions) || unlockedCount > 0
+        ? shouldShowPromoCodeUnlock({
+            hasPromoGatedShowOptions: hasGated,
+            unlockedCount,
+            discountCode: state.discountCode,
+            discountsEnabled,
+          })
         : shouldShowDiscountCode({
             discountsEnabled,
             discountCode: state.discountCode,
@@ -76,7 +84,9 @@ export class TickeanDiscount extends TickeanElementBase {
     const title = t(locale, "discountToggle");
     const hint =
       mode === "unlock"
-        ? t(locale, "promoUnlockHint")
+        ? hasGated
+          ? t(locale, "promoUnlockHint")
+          : t(locale, "ticketsCodeHint")
         : t(locale, "discountCodeHint");
 
     return `

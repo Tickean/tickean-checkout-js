@@ -2,6 +2,8 @@ import type {
   PromotionNxM,
   PublicShowOption,
   QuantityDiscount,
+  QuoteDiscountCode,
+  QuotePricingBreakdown,
 } from "@tickean/checkout-js";
 import { TickeanElementBase, t, tFormat } from "../base";
 import {
@@ -115,6 +117,69 @@ function maxQty(opt: CatalogOption): number {
   return Math.max(0, Math.min(stock, cap || stock));
 }
 
+function asDiscountCode(value: unknown): QuoteDiscountCode | null {
+  if (!value || typeof value !== "object") return null;
+  return value as QuoteDiscountCode;
+}
+
+function asBreakdown(value: unknown): QuotePricingBreakdown | null {
+  if (!value || typeof value !== "object") return null;
+  return value as QuotePricingBreakdown;
+}
+
+function roundMoney(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Unit price after code discount for catalog cards.
+ * Uses quote line allocations when qty > 0; otherwise preview from code metadata.
+ */
+export function resolveDiscountedUnitPrice(params: {
+  optionId: string;
+  basePrice: number;
+  quantity: number;
+  discountCode?: unknown;
+  pricingBreakdown?: unknown;
+}): number | null {
+  const base = Number(params.basePrice || 0);
+  if (!(base > 0)) return null;
+
+  const breakdown = asBreakdown(params.pricingBreakdown);
+  const lines = Array.isArray(breakdown?.lines) ? breakdown.lines : [];
+  const line = lines.find(
+    (entry) => String(entry?.showOptionId || "") === String(params.optionId),
+  );
+
+  // Once the option is in the quoted cart, trust line allocations only —
+  // metadata preview would wrongly discount every eligible type for CHEAPEST mode.
+  if (params.quantity > 0 && line) {
+    const codeAmount = Number(line.codeDiscountAmount || 0);
+    const discountedUnits = Number(line.codeDiscountedUnits || 0);
+    if (codeAmount > 0 && discountedUnits > 0) {
+      return Math.max(0, roundMoney(base - codeAmount / discountedUnits));
+    }
+    return null;
+  }
+
+  const code = asDiscountCode(params.discountCode);
+  if (!code) return null;
+  const allowed = Array.isArray(code.allowedShowOptionIds)
+    ? code.allowedShowOptionIds.map(String)
+    : [];
+  // Unscoped PRICE_OFF (proportional / no allowlist): preview not shown on cards.
+  if (allowed.length === 0 || !allowed.includes(String(params.optionId))) {
+    return null;
+  }
+
+  const value = Number(code.value || 0);
+  if (!(value > 0)) return null;
+  if (String(code.discountType || "").toUpperCase() === "PERCENT") {
+    return Math.max(0, roundMoney(base * (1 - value / 100)));
+  }
+  return Math.max(0, roundMoney(base - value));
+}
+
 export class TickeanTicketSelector extends TickeanElementBase {
   private firstPaint = true;
 
@@ -178,6 +243,23 @@ export class TickeanTicketSelector extends TickeanElementBase {
       const legend = promoLegend(opt, locale);
       const badge = promoBadge(opt);
       const gated = opt.catalogVisibility === "PROMO_GATED";
+      const basePrice = Number(opt.price || 0);
+      const discountedUnit = resolveDiscountedUnitPrice({
+        optionId: opt.id,
+        basePrice,
+        quantity: qty,
+        discountCode: state.quote?.discountCode,
+        pricingBreakdown: state.quote?.pricingBreakdown,
+      });
+      const showDiscounted =
+        typeof discountedUnit === "number" &&
+        discountedUnit < basePrice - 0.001;
+      const priceHtml = showDiscounted
+        ? `<div class="ticket-price" style="font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right">
+            <span class="ticket-price-was muted">${escapeHtml(this.money(basePrice))}</span>
+            <span class="ticket-price-now">${escapeHtml(this.money(discountedUnit!))}</span>
+          </div>`
+        : `<div style="font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap">${escapeHtml(this.money(basePrice))}</div>`;
 
       let stockBadge = "";
       if (soldOut) {
@@ -206,7 +288,7 @@ export class TickeanTicketSelector extends TickeanElementBase {
               <div class="muted" style="font-size:0.78rem;margin-top:2px">${escapeHtml(subtitle || "")}</div>
               ${legend ? `<div class="promo-legend">${escapeHtml(legend)}</div>` : ""}
             </div>
-            <div style="font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap">${this.money(Number(opt.price || 0))}</div>
+            ${priceHtml}
           </div>
           <div class="row" style="margin-top:8px">
             <span class="muted" style="font-size:0.78rem">${soldOut ? escapeHtml(t(locale, "soldOut")) : t(locale, "quantity")}</span>

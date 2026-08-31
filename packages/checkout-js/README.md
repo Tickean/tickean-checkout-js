@@ -2,7 +2,7 @@
 
 Framework-agnostic TypeScript client for Tickean Headless Checkout.
 
-Current version: **0.2.11**.
+Current version: **0.2.12**.
 
 ## APIs
 

@@ -18,7 +18,7 @@ SDK white-label para vender entradas dentro de cualquier web, con DX al nivel de
 ## Quick start (React Elements)
 
 ```bash
-npm install @tickean/checkout-js@^0.2.11 @tickean/react-checkout @tickean/checkout-elements@^0.2.22
+npm install @tickean/checkout-js@^0.2.12 @tickean/react-checkout @tickean/checkout-elements@^0.2.23
 ```
 
 ```tsx
@@ -84,11 +84,11 @@ OpenAPI v1.1: [`docs/readme/tickean-checkout-v1.openapi.json`](./docs/readme/tic
 
 Paquetes publicados en npm:
 
-- `@tickean/checkout-js` **0.2.11**
-- `@tickean/checkout-elements` **0.2.22**
+- `@tickean/checkout-js` **0.2.12**
+- `@tickean/checkout-elements` **0.2.23**
 
 ```bash
-npm install @tickean/checkout-js@^0.2.11 @tickean/checkout-elements@^0.2.22 @tickean/react-checkout
+npm install @tickean/checkout-js@^0.2.12 @tickean/checkout-elements@^0.2.23 @tickean/react-checkout
 ```
 
 Documentación pública: [docs.tickean.com](https://docs.tickean.com) (categoría SDK de Headless Checkout).

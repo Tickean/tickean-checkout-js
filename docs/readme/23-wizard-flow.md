@@ -10,7 +10,15 @@ Pasos típicos:
 4. Instrucciones / pendiente (transferencia u otros `nextAction`)  
 5. Listo
 
-Versiones recomendadas: **`@tickean/checkout-js` ≥ 0.2.11** y **`@tickean/checkout-elements` ≥ 0.2.22**.
+Versiones recomendadas: **`@tickean/checkout-js` ≥ 0.2.12** y **`@tickean/checkout-elements` ≥ 0.2.23**.
+
+## Probá el wizard (mock)
+
+Mock interactivo en modo `demo` (sin API real). OTP de prueba: `123456`.
+
+<iframe src="https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html?embed=1" title="Tickean Elements wizard demo" width="100%" height="640" loading="lazy" style="border:1px solid #e2e8f0;border-radius:12px;background:#fff"></iframe>
+
+[Abrir en pantalla completa](https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html)
 
 ## 1. Entradas
 

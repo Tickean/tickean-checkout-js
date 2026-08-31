@@ -5,10 +5,10 @@ Tickean Elements es la capa visual white-label sobre `/v1/checkout`.
 ## Instalar
 
 ```bash
-npm install @tickean/checkout-js@^0.2.11 @tickean/react-checkout @tickean/checkout-elements@^0.2.22
+npm install @tickean/checkout-js@^0.2.12 @tickean/react-checkout @tickean/checkout-elements@^0.2.23
 ```
 
-Usá **checkout-js ≥ 0.2.11** y **elements ≥ 0.2.22** (wizard + recovery `?resume=`).
+Usá **checkout-js ≥ 0.2.12** y **elements ≥ 0.2.23** (wizard + recovery `?resume=`).
 
 ## React completo
 
@@ -49,13 +49,11 @@ Por defecto `layout="steps"` (Entradas → Datos → Pago → Listo). Usá `layo
 
 ## Vista previa del wizard
 
-![Entradas](https://d1eg24w7igwib6.cloudfront.net/1.wizard.png)
+Mock interactivo (modo `demo`, OTP `123456`):
 
-![Tus datos](https://d1eg24w7igwib6.cloudfront.net/2.wizar_client.png)
+<iframe src="https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html?embed=1" title="Tickean Elements wizard demo" width="100%" height="640" loading="lazy" style="border:1px solid #e2e8f0;border-radius:12px;background:#fff"></iframe>
 
-![OTP](https://d1eg24w7igwib6.cloudfront.net/3.wizar_otp.png)
-
-Guía ilustrada paso a paso: [Flujo del wizard](./23-wizard-flow.md).
+[Abrir en pantalla completa](https://d1eg24w7igwib6.cloudfront.net/wizard-demo.html) · Guía ilustrada: [Flujo del wizard](./23-wizard-flow.md).
 
 ## Tres niveles
 

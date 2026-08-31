@@ -21,7 +21,7 @@ define('TICKEAN_PUBLISHABLE_KEY', 'pk_test_...');
 
 Creá `wp-content/mu-plugins/tickean-checkout.php` (o agregalo al `functions.php` del tema hijo).
 
-Por defecto carga los bundles desde **jsDelivr** (`@tickean/checkout-js` **0.2.11** y `@tickean/checkout-elements` **0.2.22**). Preferí WordPress 6.5+ `wp_register_script_module` para fusionar el importmap (un segundo `<script type="importmap">` lo ignora el browser).
+Por defecto carga los bundles desde **jsDelivr** (`@tickean/checkout-js` **0.2.12** y `@tickean/checkout-elements` **0.2.23**). Preferí WordPress 6.5+ `wp_register_script_module` para fusionar el importmap (un segundo `<script type="importmap">` lo ignora el browser).
 
 ```php
 <?php
@@ -37,13 +37,13 @@ if (!defined('ABSPATH')) {
 if (!defined('TICKEAN_CHECKOUT_JS_URL')) {
   define(
     'TICKEAN_CHECKOUT_JS_URL',
-    'https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.11/dist/index.mjs'
+    'https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.12/dist/index.mjs'
   );
 }
 if (!defined('TICKEAN_CHECKOUT_ELEMENTS_URL')) {
   define(
     'TICKEAN_CHECKOUT_ELEMENTS_URL',
-    'https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.22/dist/index.mjs'
+    'https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.23/dist/index.mjs'
   );
 }
 
@@ -59,14 +59,14 @@ function tickean_checkout_register_modules() {
     '@tickean/checkout-js',
     TICKEAN_CHECKOUT_JS_URL,
     array(),
-    '0.2.11'
+    '0.2.12'
   );
 
   wp_register_script_module(
     '@tickean/checkout-elements',
     TICKEAN_CHECKOUT_ELEMENTS_URL,
     array('@tickean/checkout-js'),
-    '0.2.22'
+    '0.2.23'
   );
 }
 add_action('init', 'tickean_checkout_register_modules');
@@ -141,7 +141,7 @@ define('TICKEAN_CHECKOUT_JS_URL', content_url('uploads/tickean/checkout-js.mjs')
 define('TICKEAN_CHECKOUT_ELEMENTS_URL', content_url('uploads/tickean/checkout-elements.mjs'));
 ```
 
-Obtené los archivos desde `node_modules/@tickean/*/dist/index.mjs` tras `npm install @tickean/checkout-js@0.2.11 @tickean/checkout-elements@0.2.22`.
+Obtené los archivos desde `node_modules/@tickean/*/dist/index.mjs` tras `npm install @tickean/checkout-js@0.2.12 @tickean/checkout-elements@0.2.23`.
 
 ## 3. Usalo en una página
 
@@ -167,8 +167,8 @@ Layout clásico (todo visible a la vez):
 <script type="importmap">
 {
   "imports": {
-    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.11/dist/index.mjs",
-    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.22/dist/index.mjs"
+    "@tickean/checkout-js": "https://cdn.jsdelivr.net/npm/@tickean/checkout-js@0.2.12/dist/index.mjs",
+    "@tickean/checkout-elements": "https://cdn.jsdelivr.net/npm/@tickean/checkout-elements@0.2.23/dist/index.mjs"
   }
 }
 </script>
@@ -193,7 +193,7 @@ Para layouts propios con child elements + `createCheckoutController` / `attachCo
 ## Checklist
 
 1. Dominio allowlisteado en Dashboard.
-2. Bundles ESM accesibles por HTTPS (CDN o self-host). **checkout-js ≥ 0.2.11** y **Elements ≥ 0.2.22** (wizard + `?resume=`).
+2. Bundles ESM accesibles por HTTPS (CDN o self-host). **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.23** (wizard + `?resume=`).
 3. `TICKEAN_PUBLISHABLE_KEY` definida.
 4. Shortcode con `event_slug` válido (`return_url` default = página actual, base del recovery).
 5. Excluí los módulos ESM de minificación/combine en plugins de caché.
