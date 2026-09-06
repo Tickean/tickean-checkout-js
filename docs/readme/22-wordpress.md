@@ -27,7 +27,7 @@ Ver [Claves y dominios](./03-keys-and-domains.md).
 
 Tickean Elements se publica en npm como ESM. En WordPress, la vía recomendada es **CDN** (jsDelivr).
 
-Usá **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.23** (wizard + recovery `?resume=`).
+Usá **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.24** (wizard + recovery `?resume=`).
 
 ### WordPress 6.5+ (recomendado)
 
@@ -217,7 +217,7 @@ script-src 'self' https://cdn.jsdelivr.net;
 1. Origen HTTPS exacto en el allowlist.
 2. `pk_live_…` solo en producción (nunca en repos públicos).
 3. Compra de prueba completa: entradas → OTP → pago → retorno / instrucciones.
-4. **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.23**.
+4. **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.24**.
 5. Probar un link `?resume=` de recovery (abandonar tras OTP y esperar el mail/SMS, o usar un code de prueba interno).
 6. CSP y plugins de caché validados.
 7. Webhooks configurados si tu integración los requiere ([Webhooks](./08-webhooks.md)).

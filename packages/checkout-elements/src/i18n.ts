@@ -86,6 +86,15 @@ type Messages = {
   transferPendingHint: string;
   transferExactAmount: string;
   transferWaiting: string;
+  transferOtherBankHint: string;
+  payWithMercadoPago: string;
+  openOtherBankApp: string;
+  transferExactHint: string;
+  awaitingTransfer: string;
+  supportWhatsappLink: string;
+  selectBankApp: string;
+  bankAppDesktopHint: string;
+  account: string;
   copy: string;
   copied: string;
   changePaymentMethod: string;
@@ -194,6 +203,17 @@ const catalogs: Record<Locale, Messages> = {
       "Cuando acreditemos la transferencia te enviamos las entradas por email/WhatsApp.",
     transferExactAmount: "Monto exacto a transferir",
     transferWaiting: "Esperando confirmación de tu transferencia…",
+    transferOtherBankHint:
+      "Si usás otro banco, copiá y pegá el monto y el alias, o abrí otra app bancaria.",
+    payWithMercadoPago: "Pagar con Mercado Pago",
+    openOtherBankApp: "Abrir otra app bancaria",
+    transferExactHint:
+      "Transferí el monto exacto. Las entradas se envían al confirmar; puede demorar unos minutos.",
+    awaitingTransfer: "Esperando tu transferencia",
+    supportWhatsappLink: "¿Tuviste un inconveniente? Escribinos por WhatsApp",
+    selectBankApp: "Seleccioná tu app bancaria",
+    bankAppDesktopHint: "Abrí el homebanking en una pestaña nueva o usá la app en el celular.",
+    account: "Cuenta",
     copy: "Copiar",
     copied: "Copiado",
     changePaymentMethod: "Cambiar método",
@@ -300,6 +320,17 @@ const catalogs: Record<Locale, Messages> = {
       "Cuando acreditemos la transferencia te enviamos las entradas por email/WhatsApp.",
     transferExactAmount: "Monto exacto a transferir",
     transferWaiting: "Esperando confirmación de tu transferencia…",
+    transferOtherBankHint:
+      "Si usas otro banco, copia y pega el monto y el alias, o abre otra app bancaria.",
+    payWithMercadoPago: "Pagar con Mercado Pago",
+    openOtherBankApp: "Abrir otra app bancaria",
+    transferExactHint:
+      "Transfiere el monto exacto. Las entradas se envían al confirmar; puede demorar unos minutos.",
+    awaitingTransfer: "Esperando tu transferencia",
+    supportWhatsappLink: "¿Tuviste un inconveniente? Escríbenos por WhatsApp",
+    selectBankApp: "Selecciona tu app bancaria",
+    bankAppDesktopHint: "Abre el homebanking en una pestaña nueva o usa la app en el celular.",
+    account: "Cuenta",
     copy: "Copiar",
     copied: "Copiado",
     changePaymentMethod: "Cambiar método",
@@ -405,6 +436,17 @@ const catalogs: Record<Locale, Messages> = {
       "Once we confirm the transfer we’ll send your tickets by email/WhatsApp.",
     transferExactAmount: "Exact amount to transfer",
     transferWaiting: "Waiting for your transfer confirmation…",
+    transferOtherBankHint:
+      "If you use another bank, copy and paste the amount and alias, or open another banking app.",
+    payWithMercadoPago: "Pay with Mercado Pago",
+    openOtherBankApp: "Open another banking app",
+    transferExactHint:
+      "Transfer the exact amount. Tickets are sent on confirmation; it may take a few minutes.",
+    awaitingTransfer: "Waiting for your transfer",
+    supportWhatsappLink: "Had an issue? Message us on WhatsApp",
+    selectBankApp: "Select your banking app",
+    bankAppDesktopHint: "Open home banking in a new tab or use the app on your phone.",
+    account: "Account",
     copy: "Copy",
     copied: "Copied",
     changePaymentMethod: "Change method",

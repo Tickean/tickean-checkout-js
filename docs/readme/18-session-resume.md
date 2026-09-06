@@ -28,7 +28,7 @@ Si no hay `returnUrl`, se usa el builder de URL del ecommerce Tickean.
 
 ### Qué hace Elements
 
-Con **checkout-js ≥ 0.2.12** y **elements ≥ 0.2.23**:
+Con **checkout-js ≥ 0.2.12** y **elements ≥ 0.2.24**:
 
 1. Al montar `<tickean-checkout>`, lee `?resume=` de la URL.
 2. Llama `POST /v1/checkout/recovery/exchange` con la publishable key + origin.

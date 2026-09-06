@@ -21,7 +21,7 @@ define('TICKEAN_PUBLISHABLE_KEY', 'pk_test_...');
 
 Creá `wp-content/mu-plugins/tickean-checkout.php` (o agregalo al `functions.php` del tema hijo).
 
-Por defecto carga los bundles desde **jsDelivr** (`@tickean/checkout-js` **0.2.12** y `@tickean/checkout-elements` **0.2.23**). Preferí WordPress 6.5+ `wp_register_script_module` para fusionar el importmap (un segundo `<script type="importmap">` lo ignora el browser).
+Por defecto carga los bundles desde **jsDelivr** (`@tickean/checkout-js` **0.2.12** y `@tickean/checkout-elements` **0.2.24**). Preferí WordPress 6.5+ `wp_register_script_module` para fusionar el importmap (un segundo `<script type="importmap">` lo ignora el browser).
 
 ```php
 <?php
@@ -66,7 +66,7 @@ function tickean_checkout_register_modules() {
     '@tickean/checkout-elements',
     TICKEAN_CHECKOUT_ELEMENTS_URL,
     array('@tickean/checkout-js'),
-    '0.2.23'
+    '0.2.24'
   );
 }
 add_action('init', 'tickean_checkout_register_modules');
@@ -193,7 +193,7 @@ Para layouts propios con child elements + `createCheckoutController` / `attachCo
 ## Checklist
 
 1. Dominio allowlisteado en Dashboard.
-2. Bundles ESM accesibles por HTTPS (CDN o self-host). **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.23** (wizard + `?resume=`).
+2. Bundles ESM accesibles por HTTPS (CDN o self-host). **checkout-js ≥ 0.2.12** y **Elements ≥ 0.2.24** (wizard + `?resume=`).
 3. `TICKEAN_PUBLISHABLE_KEY` definida.
 4. Shortcode con `event_slug` válido (`return_url` default = página actual, base del recovery).
 5. Excluí los módulos ESM de minificación/combine en plugins de caché.

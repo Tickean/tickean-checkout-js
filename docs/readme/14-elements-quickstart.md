@@ -5,10 +5,10 @@ Tickean Elements es la capa visual white-label sobre `/v1/checkout`.
 ## Instalar
 
 ```bash
-npm install @tickean/checkout-js@^0.2.12 @tickean/react-checkout @tickean/checkout-elements@^0.2.23
+npm install @tickean/checkout-js@^0.2.12 @tickean/react-checkout @tickean/checkout-elements@^0.2.24
 ```
 
-Usá **checkout-js ≥ 0.2.12** y **elements ≥ 0.2.23** (wizard + recovery `?resume=`).
+Usá **checkout-js ≥ 0.2.12** y **elements ≥ 0.2.24** (wizard + recovery `?resume=`).
 
 ## React completo
 

@@ -33,10 +33,10 @@ Las sesiones son de corta duración, están vinculadas al origen y usan una clav
 | `@tickean/react-checkout` | `TickeanProvider`, hooks headless y wrappers React sobre los WC |
 
 ```bash
-npm install @tickean/checkout-js@^0.2.12 @tickean/checkout-elements@^0.2.23 @tickean/react-checkout
+npm install @tickean/checkout-js@^0.2.12 @tickean/checkout-elements@^0.2.24 @tickean/react-checkout
 ```
 
-Versiones actuales en npm (Elements / recovery): **checkout-js 0.2.12**, **checkout-elements 0.2.23**. React wrappers: ver versión publicada de `@tickean/react-checkout` (peer de los anteriores).
+Versiones actuales en npm (Elements / recovery): **checkout-js 0.2.12**, **checkout-elements 0.2.24**. React wrappers: ver versión publicada de `@tickean/react-checkout` (peer de los anteriores).
 
 ## Tres niveles de integración
 
